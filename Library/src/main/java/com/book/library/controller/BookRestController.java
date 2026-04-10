@@ -1,8 +1,11 @@
 package com.book.library.controller;
 
+import com.book.library.dto.BookDTO;
+import com.book.library.dto.CreateBookRequest;
 import com.book.library.entity.Book;
 import com.book.library.service.interfaces.BookService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,17 +22,17 @@ public class BookRestController {
     }
 
     @PostMapping
-    public Book create(@RequestBody Book book) {
-        return bookService.create(book);
+    public BookDTO create(@RequestBody @Valid CreateBookRequest request) {
+        return bookService.create(request);
     }
 
     @GetMapping
-    public List<Book> getAll() {
+    public List<BookDTO> getAll() {
         return bookService.getAll();
     }
 
     @GetMapping("/{id}")
-    public Book getById(@PathVariable Long id) {
+    public BookDTO getById(@PathVariable Long id) {
         return bookService.getById(id);
     }
 
