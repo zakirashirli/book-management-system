@@ -31,8 +31,10 @@ public class LoggingAspect {
     @Around("serviceLayer()")
     public Object logExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
         long start = System.currentTimeMillis();
-        long end = System.currentTimeMillis();
+
         Object result = joinPoint.proceed();
+
+        long end = System.currentTimeMillis();
 
         log.info("Execution time of {} : {} ms", joinPoint.getSignature().getName(), (end - start));
 

@@ -1,7 +1,8 @@
 package com.book.library.service.impl;
 
-import com.book.library.dto.BookDTO;
-import com.book.library.dto.CreateBookRequest;
+import com.book.library.dto.book.BookDTO;
+import com.book.library.dto.book.CreateBookRequest;
+import com.book.library.dto.book.UpdateBookRequest;
 import com.book.library.entity.Book;
 import com.book.library.exception.BookNotFoundException;
 import com.book.library.repository.BookRepository;
@@ -30,6 +31,21 @@ public class BookServiceImpl implements BookService {
 
         return mapToDTO(saved);
     }
+
+    @Override
+    public BookDTO update(Long id, UpdateBookRequest updateRequest) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException("Not Found!"));
+
+        book.setTitle(updateRequest.getTitle());
+        book.setAuthor(updateRequest.getAuthor());
+        book.setPrice(updateRequest.getPrice());
+
+        Book updated = bookRepository.save(book);
+
+        return mapToDTO(updated);
+    }
+
 
     @Override
     public List<BookDTO> getAll() {

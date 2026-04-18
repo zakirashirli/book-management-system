@@ -1,8 +1,8 @@
 package com.book.library.controller;
 
-import com.book.library.dto.BookDTO;
-import com.book.library.dto.CreateBookRequest;
-import com.book.library.entity.Book;
+import com.book.library.dto.book.BookDTO;
+import com.book.library.dto.book.CreateBookRequest;
+import com.book.library.dto.book.UpdateBookRequest;
 import com.book.library.service.interfaces.BookService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -36,9 +36,13 @@ public class BookRestController {
         return bookService.getById(id);
     }
 
+    @PutMapping("/{id}")
+    public BookDTO update(@PathVariable Long id, @RequestBody @Valid UpdateBookRequest updateRequest){
+        return bookService.update(id, updateRequest);
+    }
+
     @DeleteMapping("/{id}")
     public void deleteById(@PathVariable Long id) {
         bookService.delete(id);
     }
-
 }
