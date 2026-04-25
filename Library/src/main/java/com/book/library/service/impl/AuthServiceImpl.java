@@ -6,22 +6,19 @@ import com.book.library.entity.User;
 import com.book.library.repository.UserRepository;
 import com.book.library.service.interfaces.AuthService;
 import com.book.library.service.jwt.JwtService;
-import org.springframework.http.ResponseEntity;
+import com.book.library.service.otp.OtpService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
-
-    public AuthServiceImpl(UserRepository userRepository, JwtService jwtService, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.jwtService = jwtService;
-        this.passwordEncoder = passwordEncoder;
-    }
+    private final OtpService otpService;
 
     @Override
     public String register(RegisterRequest registerRequest) {
@@ -39,11 +36,27 @@ public class AuthServiceImpl implements AuthService {
         user.setUsername(registerRequest.getUsername());
         user.setEmail(registerRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setEnabled(false);
 
         userRepository.save(user);
+        otpService.generateAndSendOtp(user.getEmail());
 
-        return "User Created!";
+        return "User Created! Verify your account.";
     }
+
+    @Override
+    public String verifyOtp(String email, String code) {
+        otpService.verifyOtp(email, code);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found!"));
+
+        user.setEnabled(true);
+        userRepository.save(user);
+
+        return "Account verified!";
+    }
+
 
     @Override
     public String login(LoginRequest loginRequest) {

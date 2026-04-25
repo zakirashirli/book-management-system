@@ -1,0 +1,53 @@
+package com.book.library.service.otp;
+
+import com.book.library.entity.Otp;
+import com.book.library.repository.OtpRepository;
+import com.book.library.service.interfaces.EmailService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.security.SecureRandom;
+
+@Service
+@RequiredArgsConstructor
+public class OtpService {
+
+    private final OtpRepository otpRepository;
+    private final EmailService emailService;
+
+    private static final SecureRandom random = new SecureRandom();
+
+    public void generateAndSendOtp(String email) {
+        otpRepository.deleteByEmail(email);
+
+        int codeInt = 100000 + random.nextInt(900000);
+        String code = String.valueOf(codeInt);
+
+        Otp otp = new Otp();
+        otp.setEmail(email);
+        otp.setCode(code);
+        otp.setExpirationTime(System.currentTimeMillis() + 5 * 60 * 1000);
+
+        otpRepository.save(otp);
+
+        emailService.sendOtp(email, code);
+    }
+
+    public boolean verifyOtp(String email, String inputCode) {
+
+        Otp otp = otpRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("OTP expired!"));
+
+        if (otp.getExpirationTime() < System.currentTimeMillis()) {
+            throw new RuntimeException("OTP expired!");
+        }
+
+        if (!otp.getCode().equals(inputCode)) {
+            throw new RuntimeException("Invalid OTP!");
+        }
+
+        otpRepository.deleteByEmail(email);
+
+        return true;
+    }
+}
