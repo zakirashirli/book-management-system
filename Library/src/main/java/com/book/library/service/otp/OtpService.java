@@ -3,6 +3,7 @@ package com.book.library.service.otp;
 import com.book.library.entity.Otp;
 import com.book.library.repository.OtpRepository;
 import com.book.library.service.interfaces.EmailService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,7 @@ import java.security.SecureRandom;
 
 @Service
 @RequiredArgsConstructor
+
 public class OtpService {
 
     private final OtpRepository otpRepository;
@@ -33,6 +35,7 @@ public class OtpService {
         emailService.sendOtp(email, code);
     }
 
+    @Transactional
     public boolean verifyOtp(String email, String inputCode) {
 
         Otp otp = otpRepository.findByEmail(email)

@@ -68,6 +68,10 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid Password");
         }
 
+        if(!user.isEnabled()) {
+            throw new RuntimeException("Account not verified!");
+        }
+
         return jwtService.generateToken(user.getUsername());
     }
 }
