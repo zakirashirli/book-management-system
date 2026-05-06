@@ -6,6 +6,7 @@ import com.book.library.dto.book.UpdateBookRequest;
 import com.book.library.service.interfaces.BookService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,26 +23,31 @@ public class BookRestController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public BookDTO create(@RequestBody @Valid CreateBookRequest request) {
         return bookService.create(request);
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public List<BookDTO> getAll() {
         return bookService.getAll();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public BookDTO getById(@PathVariable Long id) {
         return bookService.getById(id);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public BookDTO update(@PathVariable Long id, @RequestBody @Valid UpdateBookRequest updateRequest){
         return bookService.update(id, updateRequest);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteById(@PathVariable Long id) {
         bookService.delete(id);
     }

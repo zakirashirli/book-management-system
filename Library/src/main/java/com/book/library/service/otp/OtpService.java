@@ -39,7 +39,7 @@ public class OtpService {
     public boolean verifyOtp(String email, String inputCode) {
 
         Otp otp = otpRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("OTP expired!"));
+                .orElseThrow(() -> new RuntimeException("OTP not found!"));
 
         if (otp.getExpirationTime() < System.currentTimeMillis()) {
             throw new RuntimeException("OTP expired!");

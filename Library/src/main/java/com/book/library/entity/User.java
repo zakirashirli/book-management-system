@@ -1,5 +1,6 @@
 package com.book.library.entity;
 
+import com.book.library.entity.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +23,7 @@ public class User {
     private String email;
     @Column(nullable = false)
     private String password;
-    private String role = "USER";
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
     private boolean enabled = false;
 }

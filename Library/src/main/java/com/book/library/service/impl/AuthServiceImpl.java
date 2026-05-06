@@ -3,6 +3,7 @@ package com.book.library.service.impl;
 import com.book.library.dto.auth.LoginRequest;
 import com.book.library.dto.auth.RegisterRequest;
 import com.book.library.entity.User;
+import com.book.library.entity.enums.Role;
 import com.book.library.repository.UserRepository;
 import com.book.library.service.interfaces.AuthService;
 import com.book.library.service.jwt.JwtService;
@@ -33,10 +34,13 @@ public class AuthServiceImpl implements AuthService {
 
         User user = new User();
 
+        // Client -> request -> registerRequest -> .getUsername() -> .setUsername -> save -> user
         user.setUsername(registerRequest.getUsername());
+
         user.setEmail(registerRequest.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setEnabled(false);
+        user.setRole(Role.USER);
 
         userRepository.save(user);
         otpService.generateAndSendOtp(user.getEmail());
@@ -72,6 +76,6 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Account not verified!");
         }
 
-        return jwtService.generateToken(user.getUsername());
+        return jwtService.generateToken(user.getUsername(), user.getRole().name());
     }
 }
