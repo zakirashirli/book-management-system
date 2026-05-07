@@ -6,6 +6,7 @@ import com.book.library.dto.book.UpdateBookRequest;
 import com.book.library.service.interfaces.BookService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,8 +31,13 @@ public class BookRestController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public List<BookDTO> getAll() {
-        return bookService.getAll();
+    public Page<BookDTO> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "title") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
+        return bookService.getAll(page, size, sortBy, direction);
     }
 
     @GetMapping("/{id}")
