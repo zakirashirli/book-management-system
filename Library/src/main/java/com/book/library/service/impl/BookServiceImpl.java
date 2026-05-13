@@ -5,6 +5,8 @@ import com.book.library.dto.book.CreateBookRequest;
 import com.book.library.dto.book.UpdateBookRequest;
 import com.book.library.entity.Book;
 import com.book.library.exception.BookNotFoundException;
+import com.book.library.filter.BookFilter;
+import com.book.library.filter.BookSpecification;
 import com.book.library.repository.BookRepository;
 import com.book.library.service.interfaces.BookService;
 import org.springframework.data.domain.Page;
@@ -49,7 +51,12 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Page<BookDTO> getAll(int page, int size, String sortBy, String direction) {
+    public Page<BookDTO> getAll(
+            int page,
+            int size,
+            String sortBy,
+            String direction
+    ) {
 
         Sort sort = direction.equalsIgnoreCase("asc") ?
                 Sort.by(sortBy).ascending() :
@@ -57,6 +64,28 @@ public class BookServiceImpl implements BookService {
 
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<Book> books = bookRepository.findAll(pageable);
+
+        return books.map(this::mapToDTO);
+    }
+
+    @Override
+    public Page<BookDTO> filterBooks(
+            int page,
+            int size,
+            String sortBy,
+            String direction,
+            BookFilter filter
+    ) {
+
+        Sort sort = direction.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Book> books = bookRepository.findAll(
+                BookSpecification.filterBooks(filter),
+                pageable
+        );
 
         return books.map(this::mapToDTO);
     }
