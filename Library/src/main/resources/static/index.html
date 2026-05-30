@@ -1,45 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>BookSys</title>
+  <meta charset="UTF-8">
+  <title>BookSys</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 </head>
 <body>
-      <div class = "container">
-        <h1>Book Management System</h1>
 
-        <div class="card">
-          <h2>Register</h2>
+<h1>BookSys</h1>
+<p class="site-subtitle">Manage your library with ease</p>
 
-          <input id="registerUsername" type="text" placeholder="Username">
-          <input id="email" type="email" placeholder="Email">
-          <input id="registerPassword" type="password" placeholder="Password">
+<div class="container">
 
-          <button onclick="registerUser()">Login</button>
-          <p id="registerMessage"></p>
-        </div>
+  <!-- Register -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon blue"><i class="ti ti-user-plus"></i></div>
+      <h2>Register</h2>
+    </div>
+    <div class="field">
+      <label>Username</label>
+      <input id="registerUsername" type="text" placeholder="john_doe">
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input id="email" type="email" placeholder="john@example.com">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input id="registerPassword" type="password" placeholder="••••••••">
+    </div>
+    <button class="blue" onclick="registerUser()">
+      <i class="ti ti-user-check"></i> Create account
+    </button>
+    <p class="message" id="registerMessage"></p>
+  </div>
 
-        <div class="card">
-          <h2>Verify Email</h2>
+  <!-- Verify Email -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon teal"><i class="ti ti-mail-check"></i></div>
+      <h2>Verify email</h2>
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input id="verifyEmail" type="email" placeholder="john@example.com">
+    </div>
+    <div class="field">
+      <label>OTP code</label>
+      <input id="verifyCode" type="text" placeholder="6-digit code" maxlength="6">
+    </div>
+    <button class="teal" onclick="verifyOtp()">
+      <i class="ti ti-shield-check"></i> Verify
+    </button>
+    <p class="message" id="verifyMessage"></p>
+  </div>
 
-          <input id="verifyEmail" type="email" placeholder="Email">
-          <input id="verifyCode" type="text" placeholder="6-digit OTP code">
+  <!-- Login -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon purple"><i class="ti ti-lock"></i></div>
+      <h2>Login</h2>
+    </div>
+    <div class="field">
+      <label>Username</label>
+      <input id="username" type="text" placeholder="john_doe">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input id="password" type="password" placeholder="••••••••">
+    </div>
+    <button class="purple" onclick="login()">
+      <i class="ti ti-login"></i> Sign in
+    </button>
+    <p class="message" id="loginMessage"></p>
+  </div>
 
-          <button onclick="verifyOtp()">Verify</button>
-          <p id="verifyMessage"></p>
-        </div>
+  <!-- Create Book -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon amber"><i class="ti ti-book-2"></i></div>
+      <h2>Add a book</h2>
+    </div>
+    <div class="field">
+      <label>Title</label>
+      <input id="createTitle" type="text" placeholder="e.g. 1984">
+    </div>
+    <div class="field">
+      <label>Author</label>
+      <input id="createAuthor" type="text" placeholder="e.g. George Orwell">
+    </div>
+    <div class="field">
+      <label>Price ($)</label>
+      <input id="createPrice" type="number" placeholder="9.99" step="0.01">
+    </div>
+    <button class="amber" onclick="createBook()">
+      <i class="ti ti-plus"></i> Create book
+    </button>
+    <p class="message" id="createMessage"></p>
+  </div>
 
-        <div class="card">
-          <h2>Login</h2>
+</div>
 
-          <input id="username" type="text" placeholder="Username">
-          <input id="password" type="password" placeholder="Password">
+<!-- Get All Books -->
+<div class="container" style="margin-top: 1.25rem;">
+  <div class="card full-width">
+    <div class="card-header">
+      <div class="card-icon blue"><i class="ti ti-books"></i></div>
+      <h2>All books</h2>
+    </div>
+    <div class="controls">
+      <input id="page"      type="number" placeholder="Page"    value="0" min="0"  style="width:70px;">
+      <input id="size"      type="number" placeholder="Size"    value="5" min="1"  style="width:70px;">
+      <input id="sortBy"    type="text"   placeholder="Sort by" value="title"      style="width:90px;">
+      <select id="direction">
+        <option value="asc">ASC</option>
+        <option value="desc">DESC</option>
+      </select>
+      <button class="blue" onclick="getBooks()" style="width:auto; margin:0; padding: 7px 18px;">
+        <i class="ti ti-refresh"></i> Load books
+      </button>
+    </div>
+    <div id="books"></div>
+  </div>
+</div>
 
-          <button onclick="login()">Login</button>
-          <p id="loginMessage"></p>
-        </div>
-      </div>
 <script src="app.js"></script>
 </body>
 </html>

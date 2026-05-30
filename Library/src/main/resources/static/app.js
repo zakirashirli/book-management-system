@@ -127,14 +127,107 @@ async function login() {
     }
 }
 
+async function getBooks() {
+    const token = getToken();
+
+    if (!token) {
+        document.getElementById("books").innerHTML = "Please Login";
+        return;
+    }
+
+    const page = document.getElementById("page").value;
+    const size = document.getElementById("size").value;
+    const sortBy = document.getElementById("sortBy").value;
+    const direction = document.getElementById("direction").value;
+
+    try{
+        const response = await fetch(`${API_URL}/api/books?page=${page}&size=${size}&sortBy=${sortBy}&direction=${direction}`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok){
+            document.getElementById("books").innerHTML = "Cannot load books";
+            return;
+        }
+
+        const data = await response.json();
+
+        renderBooks(data.content, "books");
+
+    }catch (error) {
+        document.getElementById("books").innerHTML = "Server Error";
+        console.error(error);
+    }
+}
 
 
+async function createBook() {
+    const token = getToken();
 
+    if (!token) {
+        showMessage("createMessage", "Please login first!", false);
+        return;
+    }
 
+    const title = document.getElementById("createTitle").value;
+    const author = document.getElementById("createAuthor").value;
+    const price = document.getElementById("createPrice").value;
+    const requestBody = {
+        title: title,
+        author: author,
+        price: Number(price)
+    }
 
+    try{
+      const response = await fetch(`${API_URL}/api/books`, {
+          method: "POST",
+          headers: getAuthHeaders(),
+          body: JSON.stringify(requestBody)
+      });
 
+      const text = await response.text();
 
+      if (!response.ok) {
+          showMessage("createMessage", text || "Book creation failed", false);
 
+          return;
+      }
 
+      showMessage("createMessage", text || "Book creation successful", true);
 
+      document.getElementById("createTitle").value = "";
+      document.getElementById("createAuthor").value = "";
+      document.getElementById("createPrice").value = "";
 
+      getBooks();
+
+    } catch (error) {
+        showMessage("createMessage", "Server error", false);
+        console.error(error);
+    }
+}
+
+function renderBooks(books, elementId) {
+    const booksDiv = document.getElementById(elementId);
+    booksDiv.innerHTML = "";
+
+    if (!books || books.length === 0) {
+        booksDiv.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:1.5rem 0;">No books found</p>';
+        return;
+    }
+
+    books.forEach(book => {
+        const div = document.createElement("div");
+        div.className = "book";
+        div.innerHTML = `
+            <div class="book-id">ID · ${book.id}</div>
+            <div class="book-title">${book.title}</div>
+            <div class="book-author">${book.author}</div>
+            <div class="book-price">$${Number(book.price).toFixed(2)}</div>
+        `;
+        booksDiv.appendChild(div);
+    });
+}
