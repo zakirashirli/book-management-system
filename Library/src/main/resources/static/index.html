@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BookSys</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+      <div class = "container">
+        <h1>Book Management System</h1>
+
+        <div class="card">
+          <h2>Register</h2>
+
+          <input id="registerUsername" type="text" placeholder="Username">
+          <input id="email" type="email" placeholder="Email">
+          <input id="registerPassword" type="password" placeholder="Password">
+
+          <button onclick="registerUser()">Login</button>
+          <p id="registerMessage"></p>
+        </div>
+
+        <div class="card">
+          <h2>Verify Email</h2>
+
+          <input id="verifyEmail" type="email" placeholder="Email">
+          <input id="verifyCode" type="text" placeholder="6-digit OTP code">
+
+          <button onclick="verifyOtp()">Verify</button>
+          <p id="verifyMessage"></p>
+        </div>
+
+        <div class="card">
+          <h2>Login</h2>
+
+          <input id="username" type="text" placeholder="Username">
+          <input id="password" type="password" placeholder="Password">
+
+          <button onclick="login()">Login</button>
+          <p id="loginMessage"></p>
+        </div>
+      </div>
+<script src="app.js"></script>
+</body>
+</html>
