@@ -240,7 +240,6 @@ async function createBook() {
 
       if (!response.ok) {
           showMessage("createMessage", text || "Book creation failed", false);
-
           return;
       }
 
@@ -256,6 +255,82 @@ async function createBook() {
         showMessage("createMessage", "Server error", false);
         console.error(error);
     }
+}
+
+async function updateBook() {
+    const token = getToken();
+
+    if (!token) {
+        showMessage("updateMessage", "Please login first!", false);
+        return;
+    }
+
+    const id = document.getElementById("updateId").value;
+    const title = document.getElementById("updateTitle").value;
+    const author = document.getElementById("updateAuthor").value;
+    const price = document.getElementById("updatePrice").value;
+
+    const requestBody = {
+        title: title,
+        author: author,
+        price: Number(price)
+    };
+
+    try{
+        const response = await fetch(`${API_URL}/api/books/${id}`, {
+            method: "PUT",
+            headers:getAuthHeaders(),
+            body: JSON.stringify(requestBody)
+        });
+
+        const text = await response.text();
+
+        if (!response.ok) {
+            showMessage("updateMessage", text || "Book update failed", false);
+            return;
+        }
+
+        showMessage("updateMessage", text || "Book update successful", true);
+
+        getBooks();
+    } catch (error) {
+        showMessage("updateMessage", "Server Error", false);
+        console.error(error);
+    }
+}
+
+async function deleteBook() {
+    const token = getToken();
+
+    if (!token) {
+        showMessage("deleteMessage", "Please login first!", false);
+        return;
+    }
+
+    const id = document.getElementById("deleteId").value;
+
+    try{
+        const response = await fetch(`${API_URL}/api/books/${id}`, {
+            method: "DELETE",
+            headers:getAuthHeaders()
+        });
+
+        const text = await response.text();
+
+        if (!response.ok) {
+            showMessage("deleteMessage", text || "Book delete failed", false);
+            return;
+        }
+
+        showMessage("deleteMessage", text || "Book delete successful", true);
+
+        getBooks();
+
+    } catch (error) {
+        showMessage("deleteMessage", "Server Error", false);
+        console.error(error);
+    }
+
 }
 
 function renderBooks(books, elementId) {

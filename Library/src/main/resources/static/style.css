@@ -14,7 +14,7 @@ body {
     color: #1a1a1a;
 }
 
-/* ── Header ── */
+/* Header */
 h1 {
     font-family: 'Playfair Display', serif;
     font-size: 2.4rem;
@@ -32,20 +32,24 @@ h1 {
     margin-bottom: 2.5rem;
 }
 
-/* ── Layout ── */
+/* Layout */
 .container {
     max-width: 960px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 1.25rem;
+}
+
+.second-container {
+    margin-top: 1.25rem;
 }
 
 .full-width {
     grid-column: 1 / -1;
 }
 
-/* ── Card ── */
+/* Card */
 .card {
     background: #ffffff;
     border: 0.5px solid rgba(0, 0, 0, 0.1);
@@ -73,10 +77,25 @@ h1 {
     flex-shrink: 0;
 }
 
-.card-icon.blue   { background: #dbeafe; color: #1d4ed8; }
-.card-icon.teal   { background: #d1fae5; color: #065f46; }
-.card-icon.purple { background: #ede9fe; color: #5b21b6; }
-.card-icon.amber  { background: #fef3c7; color: #92400e; }
+.card-icon.blue {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.card-icon.teal {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.card-icon.purple {
+    background: #ede9fe;
+    color: #5b21b6;
+}
+
+.card-icon.amber {
+    background: #fef3c7;
+    color: #92400e;
+}
 
 .card h2 {
     font-size: 1rem;
@@ -85,7 +104,7 @@ h1 {
     margin: 0;
 }
 
-/* ── Form fields ── */
+/* Form fields */
 .field {
     margin-bottom: 0.75rem;
 }
@@ -119,9 +138,11 @@ input:focus, select:focus {
     background: #ffffff;
 }
 
-input::placeholder { color: #9ca3af; }
+input::placeholder {
+    color: #9ca3af;
+}
 
-/* ── Buttons ── */
+/* Buttons */
 button {
     display: flex;
     align-items: center;
@@ -139,15 +160,42 @@ button {
     transition: opacity 0.15s, transform 0.1s;
 }
 
-button:active { transform: scale(0.98); }
-button:hover  { opacity: 0.88; }
+button:active {
+    transform: scale(0.98);
+}
 
-button.blue   { background: #1d4ed8; color: #ffffff; }
-button.teal   { background: #065f46; color: #ffffff; }
-button.purple { background: #5b21b6; color: #ffffff; }
-button.amber  { background: #92400e; color: #ffffff; }
+button:hover {
+    opacity: 0.88;
+}
 
-/* ── Messages ── */
+button.blue {
+    background: #1d4ed8;
+    color: #ffffff;
+}
+
+button.teal {
+    background: #065f46;
+    color: #ffffff;
+}
+
+button.purple {
+    background: #5b21b6;
+    color: #ffffff;
+}
+
+button.amber {
+    background: #92400e;
+    color: #ffffff;
+}
+
+.small-btn {
+    width: auto;
+    margin: 0;
+    padding: 7px 18px;
+    flex-shrink: 0;
+}
+
+/* Messages */
 p.message {
     font-size: 12.5px;
     text-align: center;
@@ -156,10 +204,19 @@ p.message {
     border-radius: 8px;
 }
 
-.success { color: #065f46; background: #d1fae5; padding: 6px 10px; }
-.error   { color: #991b1b; background: #fee2e2; padding: 6px 10px; }
+.success {
+    color: #065f46;
+    background: #d1fae5;
+    padding: 6px 10px;
+}
 
-/* ── Pagination controls ── */
+.error {
+    color: #991b1b;
+    background: #fee2e2;
+    padding: 6px 10px;
+}
+
+/* Controls */
 .controls {
     display: flex;
     flex-wrap: wrap;
@@ -176,8 +233,9 @@ p.message {
     font-size: 13px;
 }
 
-/* ── Books grid ── */
-#books {
+/* Books grid */
+#books,
+.books-result {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 10px;
@@ -200,16 +258,51 @@ p.message {
     margin-bottom: 4px;
 }
 
-.book .book-title  { font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 2px; }
-.book .book-author { font-size: 13px; color: #6b7280; margin-bottom: 6px; }
-.book .book-price  { font-size: 13px; font-weight: 600; color: #1d4ed8; }
+.book .book-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 2px;
+}
 
-/* ── Responsive ── */
+.book .book-author {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 6px;
+}
+
+.book .book-price {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1d4ed8;
+}
+
+/* Responsive */
 @media (max-width: 640px) {
-    h1 { font-size: 1.8rem; }
-    .card { padding: 1.25rem; }
-    .controls { flex-direction: column; align-items: stretch; }
+    body {
+        padding: 1.5rem 1rem;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .card {
+        padding: 1.25rem;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
     .controls input,
     .controls select,
-    .controls button { width: 100% !important; }
+    .controls button {
+        width: 100% !important;
+    }
+
+    .small-btn {
+        width: 100%;
+    }
 }
