@@ -164,6 +164,54 @@ async function getBooks() {
 }
 
 
+async function filterBooks() {
+    const token = getToken();
+
+    if (!token) {
+        document.getElementById("filteredBooks").innerHTML = "Please Log In";
+        return;
+    }
+
+    const title = document.getElementById("filterTitle").value;
+    const author = document.getElementById("filterAuthor").value;
+    const minPrice = document.getElementById("filterMinPrice").value;
+    const maxPrice = document.getElementById("filterMaxPrice").value;
+
+    let url = `${API_URL}/api/books/filter?page=0&size=10&sortBy=title&direction=asc`;
+
+    if (title) {
+        url += `&title=${title}`;
+    }
+    if (author) {
+        url += `&author=${author}`;
+    }
+    if (minPrice) {
+        url += `&minPrice=${minPrice}`;
+    }
+    if (maxPrice) {
+        url += `&maxPrice=${maxPrice}`;
+    }
+
+    try{
+        const response = await fetch(url, {
+            method: "GET",
+            headers: getAuthHeaders()
+        });
+
+        if (!response.ok) {
+            document.getElementById("filteredBooks").innerHTML = "Cannot Filtered Books";
+            return;
+        }
+        const data = await response.json();
+
+        renderBooks(data.content, "filteredBooks");
+    } catch (error) {
+        document.getElementById("filteredBooks").innerHTML = "Server Error";
+        console.error(error);
+    }
+}
+
+
 async function createBook() {
     const token = getToken();
 

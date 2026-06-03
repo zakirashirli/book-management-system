@@ -124,6 +124,20 @@
     </div>
     <div id="books"></div>
   </div>
+
+
+  <div class="controls">
+    <h2>Filter Books</h2>
+
+    <input id="filterTitle" type="text" placeholder="Title">
+    <input id="filterAuthor" type="text" placeholder="Author">
+    <input id="filterMinPrice" type="number" placeholder="MinPrice">
+    <input id="filterMaxPrice" type="number" placeholder="MaxPrice">
+
+    <button onclick="filterBooks()">Filter Books</button>
+
+    <div id="filteredBooks"></div>
+  </div>
 </div>
 
 <script src="app.js"></script>
