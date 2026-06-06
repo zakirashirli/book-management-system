@@ -13,6 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateBookRequest {
+
     @NotBlank(message = "Title is required!")
     private String title;
     @NotBlank(message = "Author is required!")
