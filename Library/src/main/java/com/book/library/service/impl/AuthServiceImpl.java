@@ -4,6 +4,8 @@ import com.book.library.dto.auth.LoginRequest;
 import com.book.library.dto.auth.RegisterRequest;
 import com.book.library.entity.User;
 import com.book.library.entity.enums.Role;
+import com.book.library.exception.BadRequestException;
+import com.book.library.exception.UserNotFoundException;
 import com.book.library.repository.UserRepository;
 import com.book.library.service.interfaces.AuthService;
 import com.book.library.service.jwt.JwtService;
@@ -25,11 +27,11 @@ public class AuthServiceImpl implements AuthService {
     public String register(RegisterRequest registerRequest) {
 
         if (userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
-            throw new RuntimeException("Username already exists!");
+            throw new UserNotFoundException("Username already exists!");
         }
 
         if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists!");
+            throw new BadRequestException("Email already exists!");
         }
 
         User user = new User();
@@ -53,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
         otpService.verifyOtp(email, code);
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found!"));
+                .orElseThrow(() -> new UserNotFoundException("User not found!"));
 
         user.setEnabled(true);
         userRepository.save(user);
@@ -66,14 +68,14 @@ public class AuthServiceImpl implements AuthService {
     public String login(LoginRequest loginRequest) {
 
         User user = userRepository.findByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())){
-            throw new RuntimeException("Invalid Password");
+            throw new BadRequestException("Invalid Password");
         }
 
         if(!user.isEnabled()) {
-            throw new RuntimeException("Account not verified!");
+            throw new BadRequestException("Account not verified!");
         }
 
         return jwtService.generateToken(user.getUsername(), user.getRole().name());
