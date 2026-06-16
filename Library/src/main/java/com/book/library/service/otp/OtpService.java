@@ -1,6 +1,7 @@
 package com.book.library.service.otp;
 
 import com.book.library.entity.Otp;
+import com.book.library.exception.BadRequestException;
 import com.book.library.repository.OtpRepository;
 import com.book.library.service.interfaces.EmailService;
 import jakarta.transaction.Transactional;
@@ -39,14 +40,14 @@ public class OtpService {
     public boolean verifyOtp(String email, String inputCode) {
 
         Otp otp = otpRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("OTP not found!"));
+                .orElseThrow(() -> new BadRequestException("OTP not found!"));
 
         if (otp.getExpirationTime() < System.currentTimeMillis()) {
-            throw new RuntimeException("OTP expired!");
+            throw new BadRequestException("OTP expired!");
         }
 
         if (!otp.getCode().equals(inputCode)) {
-            throw new RuntimeException("Invalid OTP!");
+            throw new BadRequestException("Invalid OTP!");
         }
 
         otpRepository.deleteByEmail(email);
