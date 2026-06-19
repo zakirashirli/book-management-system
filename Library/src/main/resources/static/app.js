@@ -8,9 +8,17 @@ function saveToken(token) {
     localStorage.setItem("token", token);
 }
 
+function getRefreshToken() {
+    return localStorage.getItem("refreshToken");
+}
+
+function saveRefreshToken(refreshToken) {
+    localStorage.setItem("refreshToken", refreshToken);
+}
+
 function logout() {
     localStorage.removeItem("token")
-    showMessage();
+    localStorage.removeItem("refreshToken")
 }
 
 function showMessage(elementId, message, success) {
@@ -113,9 +121,10 @@ async function login() {
             return;
         }
 
-        const token = await response.text();
+        const data = await response.json();
 
-        saveToken(token);
+        saveToken(data.accessToken);
+        saveRefreshToken(data.refreshToken);
 
         showMessage("loginMessage",  "Login SuccessFul", true);
 
@@ -124,6 +133,133 @@ async function login() {
         showMessage("loginMessage", "Server connection error", false);
         console.error(error);
 
+    }
+}
+
+async function refreshAccessToken() {
+    const refreshToken = getRefreshToken();
+
+    if (!refreshToken) {
+        showMessage("refreshMessage", "Refresh token not found", false);
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/api/auth/refresh-token`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ refreshToken: refreshToken })
+        });
+
+        if (!response.ok) {
+            showMessage("refreshMessage", "Refresh token failed", false);
+            return;
+        }
+
+        const data = await response.json();
+
+        saveToken(data.accessToken);
+        saveRefreshToken(data.refreshToken);
+
+        showMessage("refreshMessage", "Access token refreshed", true);
+    } catch (error) {
+        showMessage("refreshMessage", "Server connection error", false);
+        console.error(error);
+    }
+}
+
+async function logoutUser() {
+    const refreshToken = getRefreshToken();
+
+    if (!refreshToken) {
+        logout();
+        showMessage("logoutMessage", "Logged out", true);
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/api/auth/logout`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ refreshToken: refreshToken })
+        });
+
+        const text = await response.text();
+
+        logout();
+
+        if (!response.ok) {
+            showMessage("logoutMessage", text || "Logout failed", false);
+            return;
+        }
+
+        showMessage("logoutMessage", text || "Logged out successfully!", true);
+    } catch (error) {
+        logout();
+        showMessage("logoutMessage", "Server connection error", false);
+        console.error(error);
+    }
+}
+
+async function forgotPassword() {
+    const email = document.getElementById("forgotEmail").value;
+
+    try {
+        const response = await fetch(`${API_URL}/api/auth/forgot-password`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email: email })
+        });
+
+        const text = await response.text();
+
+        if (!response.ok) {
+            showMessage("forgotMessage", text || "Forgot password failed", false);
+            return;
+        }
+
+        showMessage("forgotMessage", text || "OTP sent to email!", true);
+    } catch (error) {
+        showMessage("forgotMessage", "Server connection error", false);
+        console.error(error);
+    }
+}
+
+async function resetPassword() {
+    const email = document.getElementById("resetEmail").value;
+    const code = document.getElementById("resetCode").value;
+    const newPassword = document.getElementById("newPassword").value;
+
+    try {
+        const response = await fetch(`${API_URL}/api/auth/reset-password`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: email,
+                code: code,
+                newPassword: newPassword
+            })
+        });
+
+        const text = await response.text();
+
+        if (!response.ok) {
+            showMessage("resetMessage", text || "Password reset failed", false);
+            return;
+        }
+
+        showMessage("resetMessage", text || "Password changed successfully!", true);
+    } catch (error) {
+        showMessage("resetMessage", "Server connection error", false);
+        console.error(error);
     }
 }
 

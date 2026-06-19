@@ -91,6 +91,73 @@
     <p class="message" id="loginMessage"></p>
   </div>
 
+  <!-- Token Actions -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon blue"><i class="ti ti-refresh"></i></div>
+      <h2>Session</h2>
+    </div>
+
+    <button class="blue" onclick="refreshAccessToken()">
+      <i class="ti ti-refresh"></i> Refresh token
+    </button>
+
+    <button class="purple" onclick="logoutUser()">
+      <i class="ti ti-logout"></i> Logout
+    </button>
+
+    <p class="message" id="refreshMessage"></p>
+    <p class="message" id="logoutMessage"></p>
+  </div>
+
+  <!-- Forgot Password -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon teal"><i class="ti ti-key"></i></div>
+      <h2>Forgot password</h2>
+    </div>
+
+    <div class="field">
+      <label>Email</label>
+      <input id="forgotEmail" type="email" placeholder="john@example.com">
+    </div>
+
+    <button class="teal" onclick="forgotPassword()">
+      <i class="ti ti-mail-forward"></i> Send OTP
+    </button>
+
+    <p class="message" id="forgotMessage"></p>
+  </div>
+
+  <!-- Reset Password -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon amber"><i class="ti ti-lock-check"></i></div>
+      <h2>Reset password</h2>
+    </div>
+
+    <div class="field">
+      <label>Email</label>
+      <input id="resetEmail" type="email" placeholder="john@example.com">
+    </div>
+
+    <div class="field">
+      <label>OTP code</label>
+      <input id="resetCode" type="text" placeholder="6-digit code" maxlength="6">
+    </div>
+
+    <div class="field">
+      <label>New password</label>
+      <input id="newPassword" type="password" placeholder="newPassword123">
+    </div>
+
+    <button class="amber" onclick="resetPassword()">
+      <i class="ti ti-device-floppy"></i> Change password
+    </button>
+
+    <p class="message" id="resetMessage"></p>
+  </div>
+
   <!-- Create Book -->
   <div class="card">
     <div class="card-header">

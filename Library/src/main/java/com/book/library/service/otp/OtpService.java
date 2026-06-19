@@ -20,6 +20,7 @@ public class OtpService {
 
     private static final SecureRandom random = new SecureRandom();
 
+    @Transactional
     public void generateAndSendOtp(String email) {
         otpRepository.deleteByEmail(email);
 
