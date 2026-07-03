@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register | BookSys</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+</head>
+<body>
+
+<h1>BookSys</h1>
+<p class="site-subtitle">Create a new account</p>
+
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-icon blue"><i class="ti ti-user-plus"></i></div>
+            <h2>Register</h2>
+        </div>
+
+        <div class="field">
+            <label>Username</label>
+            <input id="registerUsername" type="text" placeholder="john_doe">
+        </div>
+
+        <div class="field">
+            <label>Email</label>
+            <input id="email" type="email" placeholder="john@example.com">
+        </div>
+
+        <div class="field">
+            <label>Password</label>
+            <input id="registerPassword" type="password" placeholder="••••••••">
+        </div>
+
+        <button class="blue" onclick="registerUser()">
+            <i class="ti ti-user-check"></i> Create account
+        </button>
+
+        <p class="message" id="registerMessage"></p>
+
+        <div class="links">
+            <a href="verify.html">Verify email</a>
+            <a href="login.html">Already have account?</a>
+            <a href="index.html">← Home</a>
+        </div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

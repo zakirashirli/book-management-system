@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -18,14 +19,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
-
-
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
-        this.jwtAuthFilter = jwtAuthFilter;
-    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -60,8 +57,14 @@ public class SecurityConfig {
                 // authorize requests
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                // to-do
                                 "/",
                                 "/index.html",
+                                "/login.html",
+                                "/register.html",
+                                "/forgot-password.html",
+                                "/reset-password.html",
+                                "/profile.html",
                                 "/style.css",
                                 "/app.js"
                         ).permitAll()

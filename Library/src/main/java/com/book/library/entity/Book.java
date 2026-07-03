@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.Builder;
+
 
 @Entity
 @Getter
@@ -12,6 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "books")
+@Builder
 public class Book {
 
     @Id
@@ -26,4 +29,11 @@ public class Book {
 
     @Column(nullable = false)
     private Double price;
+
+    @Column(nullable = false)
+    private Integer amount;
+
+    @ManyToOne
+    @JoinColumn(name = "seller_id")
+    private User seller;
 }

@@ -41,15 +41,19 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("Email already exists!");
         }
 
-        User user = new User();
+        Role role = registerRequest.getRole() == null ? Role.USER : registerRequest.getRole();
 
-        // Client -> request -> registerRequest -> .getUsername() -> .setUsername -> save -> user
-        user.setUsername(registerRequest.getUsername());
-
-        user.setEmail(registerRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setEnabled(false);
-        user.setRole(Role.USER);
+        if (role == Role.ADMIN) {
+            throw new BadRequestException("Cannot Register as ADMIN");
+        }
+        
+        User user = User.builder()
+               .username(registerRequest.getUsername())
+               .email(registerRequest.getEmail())
+               .password(passwordEncoder.encode(registerRequest.getPassword()))
+               .role(role)
+               .enabled(false)
+               .build();
 
         userRepository.save(user);
         otpService.generateAndSendOtp(user.getEmail());

@@ -1,5 +1,6 @@
 package com.book.library.dto.book;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -23,4 +24,7 @@ public class CreateBookRequest {
     @NotNull(message = "Price is required!")
     @Positive(message = "Price must be greater than 0!")
     private Double price;
+
+    @Min(value = 0, message = "Amount cannot be less than 0!")
+    private Integer amount;
 }

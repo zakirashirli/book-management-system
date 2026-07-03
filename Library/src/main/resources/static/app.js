@@ -359,10 +359,12 @@ async function createBook() {
     const title = document.getElementById("createTitle").value;
     const author = document.getElementById("createAuthor").value;
     const price = document.getElementById("createPrice").value;
+    const amount = document.getElementById("createAmount").value;
     const requestBody = {
         title: title,
         author: author,
-        price: Number(price)
+        price: Number(price),
+        amount: Number(amount)
     }
 
     try{
@@ -384,6 +386,7 @@ async function createBook() {
       document.getElementById("createTitle").value = "";
       document.getElementById("createAuthor").value = "";
       document.getElementById("createPrice").value = "";
+      document.getElementById("createAmount").value = "";
 
       getBooks();
 
@@ -405,11 +408,13 @@ async function updateBook() {
     const title = document.getElementById("updateTitle").value;
     const author = document.getElementById("updateAuthor").value;
     const price = document.getElementById("updatePrice").value;
+    const amount = document.getElementById("updateAmount").value;
 
     const requestBody = {
         title: title,
         author: author,
-        price: Number(price)
+        price: Number(price),
+        amount: Number(amount)
     };
 
     try{
@@ -486,6 +491,7 @@ function renderBooks(books, elementId) {
             <div class="book-title">${book.title}</div>
             <div class="book-author">${book.author}</div>
             <div class="book-price">$${Number(book.price).toFixed(2)}</div>
+            <div class="book-amount">${Number(book.amount).toFixed(0)}</div>
         `;
         booksDiv.appendChild(div);
     });

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Email | BookSys</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+</head>
+<body>
+
+<h1>BookSys</h1>
+<p class="site-subtitle">Verify your email address</p>
+
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-icon teal"><i class="ti ti-mail-check"></i></div>
+            <h2>Verify email</h2>
+        </div>
+
+        <div class="field">
+            <label>Email</label>
+            <input id="verifyEmail" type="email" placeholder="john@example.com">
+        </div>
+
+        <div class="field">
+            <label>OTP code</label>
+            <input id="verifyCode" type="text" placeholder="6-digit code" maxlength="6">
+        </div>
+
+        <button class="teal" onclick="verifyOtp()">
+            <i class="ti ti-shield-check"></i> Verify
+        </button>
+
+        <p class="message" id="verifyMessage"></p>
+
+        <div class="links">
+            <a href="login.html">Go to Login</a>
+            <a href="index.html">← Home</a>
+        </div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 package com.book.library.dto.auth;
 
+import com.book.library.entity.enums.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -23,4 +24,5 @@ public class RegisterRequest {
     @NotBlank(message = "Password is required!")
     @Size(min = 8, message = "Password must include at least 8 chars!")
     private String password;
+    private Role role;
 }

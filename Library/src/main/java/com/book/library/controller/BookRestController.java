@@ -11,7 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.nio.file.AccessDeniedException;
 
 @RestController
 @RequestMapping("/api/books")
@@ -25,13 +25,13 @@ public class BookRestController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('SELLER','ADMIN')")
     public BookDTO create(@RequestBody @Valid CreateBookRequest request) {
         return bookService.create(request);
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN', 'SELLER')")
     public Page<BookDTO> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
@@ -42,7 +42,7 @@ public class BookRestController {
     }
 
     @GetMapping("/filter")
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('USER','ADMIN', 'SELLER')")
     public Page<BookDTO> filterBooks(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
@@ -63,20 +63,20 @@ public class BookRestController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public BookDTO getById(@PathVariable Long id) {
+    @PreAuthorize("hasAnyRole('USER','ADMIN', 'SELLER')")
+    public BookDTO getById(@PathVariable Long id){
         return bookService.getById(id);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public BookDTO update(@PathVariable Long id, @RequestBody @Valid UpdateBookRequest updateRequest){
+    @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
+    public BookDTO update(@PathVariable Long id, @RequestBody @Valid UpdateBookRequest updateRequest) throws AccessDeniedException {
         return bookService.update(id, updateRequest);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public void deleteById(@PathVariable Long id) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'SELLER')")
+    public void deleteById(@PathVariable Long id) throws AccessDeniedException {
         bookService.delete(id);
     }
 }
