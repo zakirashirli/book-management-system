@@ -6,17 +6,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookDTO {
+public class BookDTO implements Serializable {
     private Long id;
     private String title;
     private String author;
     private Double price;
     private Integer amount;
-
-//    private Long sellerId;
-//    private String sellerUsername;
+    private Long sellerId;
+    private String sellerUsername;
 }

@@ -13,6 +13,8 @@ import com.book.library.filter.BookSpecification;
 import com.book.library.repository.BookRepository;
 import com.book.library.repository.UserRepository;
 import com.book.library.service.interfaces.BookService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +37,7 @@ public class BookServiceImpl implements BookService {
     }
 
     // to-do
+    @CacheEvict(value = "books", allEntries = true)
     @Override
     public BookDTO create(CreateBookRequest request) {
         User currentUser = getCurrentUser();
@@ -51,6 +54,7 @@ public class BookServiceImpl implements BookService {
         return mapToDTO(saved);
     }
 
+    @CacheEvict(value = "books", allEntries = true)
     @Override
     public BookDTO update(Long id, UpdateBookRequest updateRequest) throws AccessDeniedException{
         Book book = bookRepository.findById(id)
@@ -68,6 +72,7 @@ public class BookServiceImpl implements BookService {
         return mapToDTO(updated);
     }
 
+    @Cacheable(value = "books")
     @Override
     public Page<BookDTO> getAll(
             int page,
@@ -75,6 +80,8 @@ public class BookServiceImpl implements BookService {
             String sortBy,
             String direction
     ) {
+
+        System.out.println("MYSQL");
 
         Sort sort = direction.equalsIgnoreCase("asc") ?
                 Sort.by(sortBy).ascending() :
@@ -127,6 +134,7 @@ public class BookServiceImpl implements BookService {
     }
 
     // to-do
+    @CacheEvict(value = "books", allEntries = true)
     @Override
     public void delete(Long id) throws AccessDeniedException {
         User currentUser = getCurrentUser();
