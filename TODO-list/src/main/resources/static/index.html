@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Task Management</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="header">
+  <div class="header-content">
+    <div>
+      <h1>Task Management</h1>
+      <p>Create, organize and track your tasks</p>
+    </div>
+
+    <button
+            id="openCreateModalButton"
+            class="primary-button"
+            type="button"
+    >
+      + Create Task
+    </button>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- Statistics -->
+
+  <section class="statistics-grid">
+
+    <div class="stat-card">
+      <span class="stat-label">Total tasks</span>
+      <strong id="totalTaskCount">0</strong>
+    </div>
+
+    <div class="stat-card pending-card">
+      <span class="stat-label">Pending</span>
+      <strong id="pendingTaskCount">0</strong>
+    </div>
+
+    <div class="stat-card progress-card">
+      <span class="stat-label">In progress</span>
+      <strong id="progressTaskCount">0</strong>
+    </div>
+
+    <div class="stat-card completed-card">
+      <span class="stat-label">Completed</span>
+      <strong id="completedTaskCount">0</strong>
+    </div>
+
+  </section>
+
+  <!-- Filters -->
+
+  <section class="filter-panel">
+
+    <div class="filter-group search-group">
+      <label for="searchInput">Search</label>
+
+      <div class="search-wrapper">
+        <input
+                id="searchInput"
+                type="text"
+                placeholder="Search by task title..."
+        >
+
+        <button
+                id="searchButton"
+                class="secondary-button"
+                type="button"
+        >
+          Search
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label for="statusFilter">Status</label>
+
+      <select id="statusFilter">
+        <option value="">All statuses</option>
+        <option value="TODO">Todo</option>
+        <option value="IN_PROGRESS">In progress</option>
+        <option value="DONE">Done</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="priorityFilter">Priority</label>
+
+      <select id="priorityFilter">
+        <option value="">All priorities</option>
+        <option value="LOW">Low</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HIGH">High</option>
+      </select>
+    </div>
+
+    <div class="filter-actions">
+      <button
+              id="resetFiltersButton"
+              class="outline-button"
+              type="button"
+      >
+        Reset
+      </button>
+    </div>
+
+  </section>
+
+  <!-- Loading -->
+
+  <div id="loadingMessage" class="message">
+    Loading tasks...
+  </div>
+
+  <!-- Error -->
+
+  <div id="errorMessage" class="message error-message hidden"></div>
+
+  <!-- Empty state -->
+
+  <section id="emptyState" class="empty-state hidden">
+    <h2>No tasks found</h2>
+    <p>Create your first task or change the selected filters.</p>
+  </section>
+
+  <!-- Tasks -->
+
+  <section id="taskGrid" class="task-grid"></section>
+
+</main>
+
+<!-- Create and edit modal -->
+
+<div id="taskModal" class="modal hidden">
+
+  <div class="modal-overlay" id="modalOverlay"></div>
+
+  <div class="modal-content">
+
+    <div class="modal-header">
+      <div>
+        <h2 id="modalTitle">Create Task</h2>
+        <p>Enter task information below.</p>
+      </div>
+
+      <button
+              id="closeModalButton"
+              class="close-button"
+              type="button"
+              aria-label="Close"
+      >
+        ×
+      </button>
+    </div>
+
+    <form id="taskForm">
+
+      <input id="taskId" type="hidden">
+
+      <div class="form-group">
+        <label for="taskTitle">
+          Title
+          <span>*</span>
+        </label>
+
+        <input
+                id="taskTitle"
+                name="title"
+                type="text"
+                placeholder="Enter task title"
+                minlength="2"
+                maxlength="100"
+                required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="taskDescription">Description</label>
+
+        <textarea
+                id="taskDescription"
+                name="description"
+                rows="5"
+                placeholder="Enter task description"
+                maxlength="500"
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+
+        <div class="form-group">
+          <label for="taskStatus">
+            Status
+            <span>*</span>
+          </label>
+
+          <select
+                  id="taskStatus"
+                  name="status"
+                  required
+          >
+            <option value="TODO">Todo</option>
+            <option value="IN_PROGRESS">In progress</option>
+            <option value="DONE">Done</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="taskPriority">
+            Priority
+            <span>*</span>
+          </label>
+
+          <select
+                  id="taskPriority"
+                  name="priority"
+                  required
+          >
+            <option value="LOW">Low</option>
+            <option value="MEDIUM" selected>Medium</option>
+            <option value="HIGH">High</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div id="formErrorMessage" class="form-error hidden"></div>
+
+      <div class="modal-actions">
+
+        <button
+                id="cancelButton"
+                class="outline-button"
+                type="button"
+        >
+          Cancel
+        </button>
+
+        <button
+                id="saveTaskButton"
+                class="primary-button"
+                type="submit"
+        >
+          Save Task
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+<!-- Confirmation modal -->
+
+<div id="deleteModal" class="modal hidden">
+
+  <div class="modal-overlay" id="deleteModalOverlay"></div>
+
+  <div class="modal-content confirmation-modal">
+
+    <div class="delete-icon">!</div>
+
+    <h2>Delete task?</h2>
+
+    <p>
+      This action cannot be undone. The selected task will be
+      permanently deleted.
+    </p>
+
+    <div class="modal-actions">
+      <button
+              id="cancelDeleteButton"
+              class="outline-button"
+              type="button"
+      >
+        Cancel
+      </button>
+
+      <button
+              id="confirmDeleteButton"
+              class="danger-button"
+              type="button"
+      >
+        Delete
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Notification -->
+
+<div id="notification" class="notification hidden"></div>
+
+<script src="app.js"></script>
+
+</body>
+</html>

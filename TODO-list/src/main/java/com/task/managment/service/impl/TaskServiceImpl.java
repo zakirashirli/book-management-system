@@ -104,6 +104,7 @@ public class TaskServiceImpl implements TaskService {
 
         TaskDTO dto = new TaskDTO();
 
+        dto.setId(task.getId());
         dto.setTitle(task.getTitle());
         dto.setDescription(task.getDescription());
         dto.setStatus(task.getStatus());
