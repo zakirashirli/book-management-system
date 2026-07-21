@@ -57,6 +57,47 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public TaskDTO start(Long id) {
+        Task task = repo.findTaskById(id);
+
+        if (task.getStatus() != TaskStatus.TODO) {
+            throw new IllegalStateException("This task in progress or done!");
+        }
+
+        task.setStatus(TaskStatus.IN_PROGRESS);
+
+        Task updatedTask = repo.save(task);
+
+        return mapToDTo(updatedTask);
+    }
+
+    @Override
+    public TaskDTO complete(Long id) {
+        Task task = repo.findTaskById(id);
+
+        if (task.getStatus() != TaskStatus.IN_PROGRESS) {
+            throw new IllegalStateException("This task already done!");
+        }
+
+        task.setStatus(TaskStatus.DONE);
+
+        Task updatedTask = repo.save(task);
+
+        return mapToDTo(updatedTask);
+    }
+
+    @Override
+    public TaskDTO cancel(Long id) {
+        Task task = repo.findTaskById(id);
+
+        task.setStatus(TaskStatus.TODO);
+
+        Task updatedTask = repo.save(task);
+
+        return mapToDTo(updatedTask);
+    }
+
+    @Override
     public List<TaskDTO> getAll() {
         return repo
                 .findAll()

@@ -12,6 +12,9 @@ public interface TaskService {
     TaskDTO create(CreateTaskRequest request);
     TaskDTO update(Long id, UpdateTaskRequest request);
     TaskDTO getById(Long id);
+    TaskDTO start(Long id);
+    TaskDTO complete(Long id);
+    TaskDTO cancel(Long id);
     List<TaskDTO> getAll();
     List<TaskDTO> getByStatus(TaskStatus status);
     List<TaskDTO> getByPriority(Priority priority);

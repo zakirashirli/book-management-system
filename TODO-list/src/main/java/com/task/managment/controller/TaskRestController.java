@@ -58,4 +58,19 @@ public class TaskRestController {
     }
 
 
+    @PatchMapping("/{id}/start")
+    public TaskDTO start(@PathVariable Long id){
+        return service.start(id);
+    }
+
+    @PatchMapping("/{id}/complete")
+    public TaskDTO complete(@PathVariable Long id){
+        return service.complete(id);
+    }
+
+    @PatchMapping("/{id}/cancel")
+    public TaskDTO cancel(@PathVariable Long id){
+        return service.cancel(id);
+    }
+
 }
