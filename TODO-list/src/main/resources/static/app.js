@@ -1,16 +1,22 @@
 const API_BASE_URL = "http://localhost:8081/api/tasks";
 
+/*
+|--------------------------------------------------------------------------
+| HTML elements
+|--------------------------------------------------------------------------
+*/
+
 const taskGrid = document.getElementById("taskGrid");
 const loadingMessage = document.getElementById("loadingMessage");
 const errorMessage = document.getElementById("errorMessage");
 const emptyState = document.getElementById("emptyState");
 
 const totalTaskCount = document.getElementById("totalTaskCount");
-const pendingTaskCount = document.getElementById("pendingTaskCount");
-const progressTaskCount = document.getElementById("progressTaskCount");
-const completedTaskCount = document.getElementById(
-    "completedTaskCount"
+const todoTaskCount = document.getElementById("todoTaskCount");
+const progressTaskCount = document.getElementById(
+    "progressTaskCount"
 );
+const doneTaskCount = document.getElementById("doneTaskCount");
 
 const searchInput = document.getElementById("searchInput");
 const searchButton = document.getElementById("searchButton");
@@ -20,15 +26,24 @@ const resetFiltersButton = document.getElementById(
     "resetFiltersButton"
 );
 
-const taskModal = document.getElementById("taskModal");
-const modalOverlay = document.getElementById("modalOverlay");
 const openCreateModalButton = document.getElementById(
     "openCreateModalButton"
 );
-const closeModalButton = document.getElementById("closeModalButton");
-const cancelButton = document.getElementById("cancelButton");
 
-const modalTitle = document.getElementById("modalTitle");
+const taskModal = document.getElementById("taskModal");
+const taskModalOverlay = document.getElementById(
+    "taskModalOverlay"
+);
+const closeTaskModalButton = document.getElementById(
+    "closeTaskModalButton"
+);
+const cancelTaskButton = document.getElementById(
+    "cancelTaskButton"
+);
+
+const taskModalTitle = document.getElementById(
+    "taskModalTitle"
+);
 const taskForm = document.getElementById("taskForm");
 const taskIdInput = document.getElementById("taskId");
 const taskTitleInput = document.getElementById("taskTitle");
@@ -36,9 +51,15 @@ const taskDescriptionInput = document.getElementById(
     "taskDescription"
 );
 const taskStatusInput = document.getElementById("taskStatus");
-const taskPriorityInput = document.getElementById("taskPriority");
-const saveTaskButton = document.getElementById("saveTaskButton");
-const formErrorMessage = document.getElementById("formErrorMessage");
+const taskPriorityInput = document.getElementById(
+    "taskPriority"
+);
+const saveTaskButton = document.getElementById(
+    "saveTaskButton"
+);
+const formErrorMessage = document.getElementById(
+    "formErrorMessage"
+);
 
 const deleteModal = document.getElementById("deleteModal");
 const deleteModalOverlay = document.getElementById(
@@ -53,26 +74,76 @@ const confirmDeleteButton = document.getElementById(
 
 const notification = document.getElementById("notification");
 
+/*
+|--------------------------------------------------------------------------
+| Application state
+|--------------------------------------------------------------------------
+*/
+
 let allTasks = [];
 let selectedTaskIdForDelete = null;
 let notificationTimer = null;
+
+/*
+|--------------------------------------------------------------------------
+| Initial load
+|--------------------------------------------------------------------------
+*/
 
 document.addEventListener("DOMContentLoaded", () => {
     loadTasks();
 });
 
-openCreateModalButton.addEventListener("click", openCreateModal);
-closeModalButton.addEventListener("click", closeTaskModal);
-cancelButton.addEventListener("click", closeTaskModal);
-modalOverlay.addEventListener("click", closeTaskModal);
+/*
+|--------------------------------------------------------------------------
+| Event listeners
+|--------------------------------------------------------------------------
+*/
 
-deleteModalOverlay.addEventListener("click", closeDeleteModal);
-cancelDeleteButton.addEventListener("click", closeDeleteModal);
-confirmDeleteButton.addEventListener("click", deleteSelectedTask);
+openCreateModalButton.addEventListener(
+    "click",
+    openCreateModal
+);
 
-taskForm.addEventListener("submit", handleTaskSubmit);
+closeTaskModalButton.addEventListener(
+    "click",
+    closeTaskModal
+);
 
-searchButton.addEventListener("click", searchTasks);
+cancelTaskButton.addEventListener(
+    "click",
+    closeTaskModal
+);
+
+taskModalOverlay.addEventListener(
+    "click",
+    closeTaskModal
+);
+
+deleteModalOverlay.addEventListener(
+    "click",
+    closeDeleteModal
+);
+
+cancelDeleteButton.addEventListener(
+    "click",
+    closeDeleteModal
+);
+
+confirmDeleteButton.addEventListener(
+    "click",
+    deleteSelectedTask
+);
+
+taskForm.addEventListener(
+    "submit",
+    handleTaskSubmit
+);
+
+searchButton.addEventListener(
+    "click",
+    searchTasks
+);
 
 searchInput.addEventListener("keydown", event => {
     if (event.key === "Enter") {
@@ -80,9 +151,20 @@ searchInput.addEventListener("keydown", event => {
     }
 });
 
-statusFilter.addEventListener("change", filterByStatus);
-priorityFilter.addEventListener("change", filterByPriority);
-resetFiltersButton.addEventListener("click", resetFilters);
+statusFilter.addEventListener(
+    "change",
+    filterByStatus
+);
+
+priorityFilter.addEventListener(
+    "change",
+    filterByPriority
+);
+
+resetFiltersButton.addEventListener(
+    "click",
+    resetFilters
+);
 
 document.addEventListener("keydown", event => {
     if (event.key !== "Escape") {
@@ -98,10 +180,15 @@ document.addEventListener("keydown", event => {
     }
 });
 
-/**
- * Loads all tasks from:
- * GET /api/tasks
- */
+/*
+|--------------------------------------------------------------------------
+| GET all tasks
+|--------------------------------------------------------------------------
+|
+| GET /api/tasks
+|
+*/
+
 async function loadTasks() {
     showLoading();
 
@@ -116,22 +203,30 @@ async function loadTasks() {
 
         const tasks = await response.json();
 
-        allTasks = Array.isArray(tasks) ? tasks : [];
+        allTasks = Array.isArray(tasks)
+            ? tasks
+            : [];
 
         renderTasks(allTasks);
         updateStatistics(allTasks);
     } catch (error) {
         console.error(error);
+
         showPageError(
             "Could not connect to the backend. Make sure Spring Boot is running on port 8080."
         );
     }
 }
 
-/**
- * Sends:
- * GET /api/tasks/search?title=...
- */
+/*
+|--------------------------------------------------------------------------
+| Search tasks
+|--------------------------------------------------------------------------
+|
+| GET /api/tasks/search?title=java
+|
+*/
+
 async function searchTasks() {
     const title = searchInput.value.trim();
 
@@ -161,14 +256,24 @@ async function searchTasks() {
         renderTasks(tasks);
     } catch (error) {
         console.error(error);
-        showPageError("Could not search tasks.");
+
+        showPageError(
+            error.message || "Could not search tasks."
+        );
     }
 }
 
-/**
- * Sends:
- * GET /api/tasks/status/{status}
- */
+/*
+|--------------------------------------------------------------------------
+| Filter by status
+|--------------------------------------------------------------------------
+|
+| GET /api/tasks/status/TODO
+| GET /api/tasks/status/IN_PROGRESS
+| GET /api/tasks/status/DONE
+|
+*/
+
 async function filterByStatus() {
     const status = statusFilter.value;
 
@@ -184,7 +289,7 @@ async function filterByStatus() {
 
     try {
         const response = await fetch(
-            `${API_BASE_URL}/status/${encodeURIComponent(status)}`
+            `${API_BASE_URL}/${encodeURIComponent(status)}/status`
         );
 
         if (!response.ok) {
@@ -198,14 +303,25 @@ async function filterByStatus() {
         renderTasks(tasks);
     } catch (error) {
         console.error(error);
-        showPageError("Could not filter tasks by status.");
+
+        showPageError(
+            error.message ||
+            "Could not filter tasks by status."
+        );
     }
 }
 
-/**
- * Sends:
- * GET /api/tasks/priority/{priority}
- */
+/*
+|--------------------------------------------------------------------------
+| Filter by priority
+|--------------------------------------------------------------------------
+|
+| GET /api/tasks/priority/LOW
+| GET /api/tasks/priority/MEDIUM
+| GET /api/tasks/priority/HIGH
+|
+*/
+
 async function filterByPriority() {
     const priority = priorityFilter.value;
 
@@ -221,7 +337,7 @@ async function filterByPriority() {
 
     try {
         const response = await fetch(
-            `${API_BASE_URL}/priority/${encodeURIComponent(priority)}`
+            `${API_BASE_URL}/${encodeURIComponent(priority)}/priority`
         );
 
         if (!response.ok) {
@@ -235,9 +351,19 @@ async function filterByPriority() {
         renderTasks(tasks);
     } catch (error) {
         console.error(error);
-        showPageError("Could not filter tasks by priority.");
+
+        showPageError(
+            error.message ||
+            "Could not filter tasks by priority."
+        );
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Reset filters
+|--------------------------------------------------------------------------
+*/
 
 async function resetFilters() {
     searchInput.value = "";
@@ -247,20 +373,23 @@ async function resetFilters() {
     await loadTasks();
 }
 
-/**
- * Sends:
- * POST /api/tasks
- *
- * or:
- *
- * PUT /api/tasks/{id}
- */
+/*
+|--------------------------------------------------------------------------
+| Create or update task
+|--------------------------------------------------------------------------
+|
+| POST /api/tasks
+| PUT /api/tasks/{id}
+|
+*/
+
 async function handleTaskSubmit(event) {
     event.preventDefault();
 
     hideFormError();
 
-    const id = taskIdInput.value;
+    const id = taskIdInput.value.trim();
+
     const title = taskTitleInput.value.trim();
     const description = taskDescriptionInput.value.trim();
     const status = taskStatusInput.value;
@@ -279,27 +408,32 @@ async function handleTaskSubmit(event) {
     };
 
     const isUpdate = Boolean(id);
+
     const requestUrl = isUpdate
         ? `${API_BASE_URL}/${id}`
         : API_BASE_URL;
 
-    const requestMethod = isUpdate ? "PUT" : "POST";
+    const requestMethod = isUpdate
+        ? "PUT"
+        : "POST";
 
     setSaveButtonLoading(true);
 
     try {
         const response = await fetch(requestUrl, {
             method: requestMethod,
+
             headers: {
                 "Content-Type": "application/json"
             },
+
             body: JSON.stringify(requestBody)
         });
 
         if (!response.ok) {
-            const errorText = await getErrorMessage(response);
+            const message = await getErrorMessage(response);
 
-            throw new Error(errorText);
+            throw new Error(message);
         }
 
         closeTaskModal();
@@ -314,16 +448,24 @@ async function handleTaskSubmit(event) {
         await loadTasks();
     } catch (error) {
         console.error(error);
-        showFormError(error.message || "Could not save the task.");
+
+        showFormError(
+            error.message || "Could not save the task."
+        );
     } finally {
         setSaveButtonLoading(false);
     }
 }
 
-/**
- * Sends:
- * DELETE /api/tasks/{id}
- */
+/*
+|--------------------------------------------------------------------------
+| Delete task
+|--------------------------------------------------------------------------
+|
+| DELETE /api/tasks/{id}
+|
+*/
+
 async function deleteSelectedTask() {
     if (!selectedTaskIdForDelete) {
         return;
@@ -341,9 +483,9 @@ async function deleteSelectedTask() {
         );
 
         if (!response.ok) {
-            const errorText = await getErrorMessage(response);
+            const message = await getErrorMessage(response);
 
-            throw new Error(errorText);
+            throw new Error(message);
         }
 
         closeDeleteModal();
@@ -367,6 +509,103 @@ async function deleteSelectedTask() {
     }
 }
 
+/*
+|--------------------------------------------------------------------------
+| Change task status
+|--------------------------------------------------------------------------
+|
+| PATCH /api/tasks/{id}/start
+| PATCH /api/tasks/{id}/complete
+| PATCH /api/tasks/{id}/cancel
+|
+*/
+
+async function changeTaskStatus(
+    taskId,
+    action,
+    clickedButton
+) {
+    if (!taskId) {
+        showNotification(
+            "Task ID is missing.",
+            "error"
+        );
+
+        return;
+    }
+
+    const allowedActions = [
+        "start",
+        "complete",
+        "cancel"
+    ];
+
+    if (!allowedActions.includes(action)) {
+        showNotification(
+            "Unsupported task action.",
+            "error"
+        );
+
+        return;
+    }
+
+    const originalButtonText = clickedButton
+        ? clickedButton.textContent
+        : "";
+
+    if (clickedButton) {
+        clickedButton.disabled = true;
+        clickedButton.textContent = "Processing...";
+    }
+
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/${taskId}/${action}`,
+            {
+                method: "PATCH"
+            }
+        );
+
+        if (!response.ok) {
+            const message = await getErrorMessage(response);
+
+            throw new Error(message);
+        }
+
+        const messages = {
+            start: "Task started successfully.",
+            complete: "Task completed successfully.",
+            cancel: "Task returned to TODO."
+        };
+
+        showNotification(
+            messages[action],
+            "success"
+        );
+
+        await loadTasks();
+    } catch (error) {
+        console.error(error);
+
+        showNotification(
+            error.message ||
+            "Could not change the task status.",
+            "error"
+        );
+    } finally {
+        if (clickedButton) {
+            clickedButton.disabled = false;
+            clickedButton.textContent = originalButtonText;
+        }
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Render tasks
+|--------------------------------------------------------------------------
+*/
+
 function renderTasks(tasks) {
     hideLoading();
     hidePageError();
@@ -382,59 +621,100 @@ function renderTasks(tasks) {
 
     tasks.forEach(task => {
         const taskCard = createTaskCard(task);
+
         taskGrid.appendChild(taskCard);
     });
 }
+
+/*
+|--------------------------------------------------------------------------
+| Create a task card
+|--------------------------------------------------------------------------
+*/
 
 function createTaskCard(task) {
     const article = document.createElement("article");
 
     article.className = "task-card";
 
-    const title = escapeHtml(task.title || "Untitled task");
+    const title = escapeHtml(
+        task.title || "Untitled task"
+    );
+
     const description = escapeHtml(
         task.description || "No description provided."
     );
 
-    const status = task.status || "PENDING";
+    const status = task.status || "TODO";
     const priority = task.priority || "MEDIUM";
 
     article.innerHTML = `
         <div class="task-card-header">
-            <h2 class="task-title">${title}</h2>
+
+            <h2 class="task-title">
+                ${title}
+            </h2>
 
             <span class="priority-badge ${getPriorityClass(priority)}">
                 ${formatEnumValue(priority)}
             </span>
+
         </div>
 
-        <p class="task-description">${description}</p>
+        <p class="task-description">
+            ${description}
+        </p>
 
-        <div class="task-footer">
+        <div class="task-information">
+
             <span class="status-badge ${getStatusClass(status)}">
                 ${formatEnumValue(status)}
             </span>
 
-            <div class="task-actions">
-                <button
-                    class="icon-button edit-button"
-                    type="button"
-                >
-                    Edit
-                </button>
+        </div>
 
-                <button
-                    class="icon-button delete-button"
+        <div class="status-actions">
+            ${createStatusButtons(task)}
+        </div>
+
+        <div class="task-management-actions">
+
+            <button
+                    class="card-button edit-task-button"
                     type="button"
-                >
-                    Delete
-                </button>
-            </div>
+            >
+                Edit
+            </button>
+
+            <button
+                    class="card-button delete-card-button delete-task-button"
+                    type="button"
+            >
+                Delete
+            </button>
+
         </div>
     `;
 
-    const editButton = article.querySelector(".edit-button");
-    const deleteButton = article.querySelector(".delete-button");
+    const editButton = article.querySelector(
+        ".edit-task-button"
+    );
+
+    const deleteButton = article.querySelector(
+        ".delete-task-button"
+    );
+
+    const startButton = article.querySelector(
+        ".start-button"
+    );
+
+    const completeButton = article.querySelector(
+        ".complete-button"
+    );
+
+    const cancelStatusButton = article.querySelector(
+        ".cancel-status-button"
+    );
 
     editButton.addEventListener("click", () => {
         openEditModal(task);
@@ -444,17 +724,111 @@ function createTaskCard(task) {
         openDeleteModal(task.id);
     });
 
+    if (startButton) {
+        startButton.addEventListener("click", () => {
+            changeTaskStatus(
+                task.id,
+                "start",
+                startButton
+            );
+        });
+    }
+
+    if (completeButton) {
+        completeButton.addEventListener("click", () => {
+            changeTaskStatus(
+                task.id,
+                "complete",
+                completeButton
+            );
+        });
+    }
+
+    if (cancelStatusButton) {
+        cancelStatusButton.addEventListener("click", () => {
+            changeTaskStatus(
+                task.id,
+                "cancel",
+                cancelStatusButton
+            );
+        });
+    }
+
     return article;
 }
+
+/*
+|--------------------------------------------------------------------------
+| Create status buttons based on current status
+|--------------------------------------------------------------------------
+*/
+
+function createStatusButtons(task) {
+    if (!task.id) {
+        return `
+            <p class="missing-id-message">
+                Task ID is missing.
+            </p>
+        `;
+    }
+
+    if (task.status === "TODO") {
+        return `
+            <button
+                    class="status-action-button start-button"
+                    type="button"
+            >
+                Start Task
+            </button>
+        `;
+    }
+
+    if (task.status === "IN_PROGRESS") {
+        return `
+            <button
+                    class="status-action-button complete-button"
+                    type="button"
+            >
+                Complete
+            </button>
+
+            <button
+                    class="status-action-button cancel-status-button"
+                    type="button"
+            >
+                Cancel
+            </button>
+        `;
+    }
+
+    if (task.status === "DONE") {
+        return `
+            <button
+                    class="status-action-button cancel-status-button"
+                    type="button"
+            >
+                Return to TODO
+            </button>
+        `;
+    }
+
+    return "";
+}
+
+/*
+|--------------------------------------------------------------------------
+| Create modal
+|--------------------------------------------------------------------------
+*/
 
 function openCreateModal() {
     taskForm.reset();
 
     taskIdInput.value = "";
-    taskStatusInput.value = "PENDING";
+    taskStatusInput.value = "TODO";
     taskPriorityInput.value = "MEDIUM";
 
-    modalTitle.textContent = "Create Task";
+    taskModalTitle.textContent = "Create Task";
     saveTaskButton.textContent = "Create Task";
 
     hideFormError();
@@ -464,6 +838,12 @@ function openCreateModal() {
 
     taskTitleInput.focus();
 }
+
+/*
+|--------------------------------------------------------------------------
+| Edit modal
+|--------------------------------------------------------------------------
+*/
 
 function openEditModal(task) {
     if (!task.id) {
@@ -478,10 +858,10 @@ function openEditModal(task) {
     taskIdInput.value = task.id;
     taskTitleInput.value = task.title || "";
     taskDescriptionInput.value = task.description || "";
-    taskStatusInput.value = task.status || "PENDING";
+    taskStatusInput.value = task.status || "TODO";
     taskPriorityInput.value = task.priority || "MEDIUM";
 
-    modalTitle.textContent = "Edit Task";
+    taskModalTitle.textContent = "Edit Task";
     saveTaskButton.textContent = "Update Task";
 
     hideFormError();
@@ -502,6 +882,12 @@ function closeTaskModal() {
 
     document.body.style.overflow = "";
 }
+
+/*
+|--------------------------------------------------------------------------
+| Delete modal
+|--------------------------------------------------------------------------
+*/
 
 function openDeleteModal(taskId) {
     if (!taskId) {
@@ -526,35 +912,47 @@ function closeDeleteModal() {
     document.body.style.overflow = "";
 }
 
+/*
+|--------------------------------------------------------------------------
+| Statistics
+|--------------------------------------------------------------------------
+*/
+
 function updateStatistics(tasks) {
     const total = tasks.length;
 
-    const pending = tasks.filter(
-        task => task.status === "PENDING"
+    const todo = tasks.filter(
+        task => task.status === "TODO"
     ).length;
 
     const inProgress = tasks.filter(
         task => task.status === "IN_PROGRESS"
     ).length;
 
-    const completed = tasks.filter(
-        task => task.status === "COMPLETED"
+    const done = tasks.filter(
+        task => task.status === "DONE"
     ).length;
 
     totalTaskCount.textContent = total;
-    pendingTaskCount.textContent = pending;
+    todoTaskCount.textContent = todo;
     progressTaskCount.textContent = inProgress;
-    completedTaskCount.textContent = completed;
+    doneTaskCount.textContent = done;
 }
+
+/*
+|--------------------------------------------------------------------------
+| CSS class helpers
+|--------------------------------------------------------------------------
+*/
 
 function getStatusClass(status) {
     const classes = {
-        PENDING: "status-pending",
+        TODO: "status-todo",
         IN_PROGRESS: "status-in-progress",
-        COMPLETED: "status-completed"
+        DONE: "status-done"
     };
 
-    return classes[status] || "status-pending";
+    return classes[status] || "status-todo";
 }
 
 function getPriorityClass(priority) {
@@ -567,6 +965,15 @@ function getPriorityClass(priority) {
     return classes[priority] || "priority-medium";
 }
 
+/*
+|--------------------------------------------------------------------------
+| Format enum
+|--------------------------------------------------------------------------
+|
+| IN_PROGRESS -> In Progress
+|
+*/
+
 function formatEnumValue(value) {
     if (!value) {
         return "";
@@ -575,8 +982,17 @@ function formatEnumValue(value) {
     return value
         .toLowerCase()
         .replaceAll("_", " ")
-        .replace(/\b\w/g, character => character.toUpperCase());
+        .replace(
+            /\b\w/g,
+            character => character.toUpperCase()
+        );
 }
+
+/*
+|--------------------------------------------------------------------------
+| Loading and error states
+|--------------------------------------------------------------------------
+*/
 
 function showLoading() {
     taskGrid.innerHTML = "";
@@ -601,9 +1017,15 @@ function showPageError(message) {
 }
 
 function hidePageError() {
-    errorMessage.classList.add("hidden");
     errorMessage.textContent = "";
+    errorMessage.classList.add("hidden");
 }
+
+/*
+|--------------------------------------------------------------------------
+| Form errors
+|--------------------------------------------------------------------------
+*/
 
 function showFormError(message) {
     formErrorMessage.textContent = message;
@@ -614,6 +1036,12 @@ function hideFormError() {
     formErrorMessage.textContent = "";
     formErrorMessage.classList.add("hidden");
 }
+
+/*
+|--------------------------------------------------------------------------
+| Save button loading state
+|--------------------------------------------------------------------------
+*/
 
 function setSaveButtonLoading(loading) {
     saveTaskButton.disabled = loading;
@@ -628,7 +1056,16 @@ function setSaveButtonLoading(loading) {
         : "Create Task";
 }
 
-function showNotification(message, type = "success") {
+/*
+|--------------------------------------------------------------------------
+| Notification
+|--------------------------------------------------------------------------
+*/
+
+function showNotification(
+    message,
+    type = "success"
+) {
     if (notificationTimer) {
         clearTimeout(notificationTimer);
     }
@@ -641,14 +1078,25 @@ function showNotification(message, type = "success") {
     }, 3500);
 }
 
+/*
+|--------------------------------------------------------------------------
+| Read backend error
+|--------------------------------------------------------------------------
+*/
+
 async function getErrorMessage(response) {
     try {
-        const contentType = response.headers.get("content-type");
+        const contentType = response.headers.get(
+            "content-type"
+        );
 
         if (contentType?.includes("application/json")) {
             const data = await response.json();
 
-            if (data.errors && typeof data.errors === "object") {
+            if (
+                data.errors &&
+                typeof data.errors === "object"
+            ) {
                 return Object.values(data.errors).join(", ");
             }
 
@@ -661,11 +1109,20 @@ async function getErrorMessage(response) {
 
         const text = await response.text();
 
-        return text || `Request failed with status ${response.status}.`;
+        return (
+            text ||
+            `Request failed with status ${response.status}.`
+        );
     } catch {
         return `Request failed with status ${response.status}.`;
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Protect HTML output
+|--------------------------------------------------------------------------
+*/
 
 function escapeHtml(value) {
     return String(value)

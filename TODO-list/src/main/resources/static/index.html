@@ -16,19 +16,21 @@
 <body>
 
 <header class="header">
-  <div class="header-content">
+  <div class="header-container">
+
     <div>
       <h1>Task Management</h1>
-      <p>Create, organize and track your tasks</p>
+      <p>Create, organize and track your tasks.</p>
     </div>
 
     <button
             id="openCreateModalButton"
-            class="primary-button"
+            class="button button-primary header-create-button"
             type="button"
     >
       + Create Task
     </button>
+
   </div>
 </header>
 
@@ -38,25 +40,25 @@
 
   <section class="statistics-grid">
 
-    <div class="stat-card">
-      <span class="stat-label">Total tasks</span>
+    <article class="stat-card stat-total">
+      <span>Total tasks</span>
       <strong id="totalTaskCount">0</strong>
-    </div>
+    </article>
 
-    <div class="stat-card pending-card">
-      <span class="stat-label">Pending</span>
-      <strong id="pendingTaskCount">0</strong>
-    </div>
+    <article class="stat-card stat-todo">
+      <span>To do</span>
+      <strong id="todoTaskCount">0</strong>
+    </article>
 
-    <div class="stat-card progress-card">
-      <span class="stat-label">In progress</span>
+    <article class="stat-card stat-progress">
+      <span>In progress</span>
       <strong id="progressTaskCount">0</strong>
-    </div>
+    </article>
 
-    <div class="stat-card completed-card">
-      <span class="stat-label">Completed</span>
-      <strong id="completedTaskCount">0</strong>
-    </div>
+    <article class="stat-card stat-done">
+      <span>Done</span>
+      <strong id="doneTaskCount">0</strong>
+    </article>
 
   </section>
 
@@ -64,39 +66,52 @@
 
   <section class="filter-panel">
 
-    <div class="filter-group search-group">
-      <label for="searchInput">Search</label>
+    <div class="filter-group search-filter-group">
 
-      <div class="search-wrapper">
+      <label for="searchInput">
+        Search by title
+      </label>
+
+      <div class="search-row">
+
         <input
                 id="searchInput"
                 type="text"
-                placeholder="Search by task title..."
+                placeholder="Enter task title..."
         >
 
         <button
                 id="searchButton"
-                class="secondary-button"
+                class="button button-dark"
                 type="button"
         >
           Search
         </button>
+
       </div>
+
     </div>
 
     <div class="filter-group">
-      <label for="statusFilter">Status</label>
+
+      <label for="statusFilter">
+        Status
+      </label>
 
       <select id="statusFilter">
         <option value="">All statuses</option>
-        <option value="TODO">Todo</option>
+        <option value="TODO">To do</option>
         <option value="IN_PROGRESS">In progress</option>
         <option value="DONE">Done</option>
       </select>
+
     </div>
 
     <div class="filter-group">
-      <label for="priorityFilter">Priority</label>
+
+      <label for="priorityFilter">
+        Priority
+      </label>
 
       <select id="priorityFilter">
         <option value="">All priorities</option>
@@ -104,72 +119,106 @@
         <option value="MEDIUM">Medium</option>
         <option value="HIGH">High</option>
       </select>
+
     </div>
 
-    <div class="filter-actions">
+    <div class="filter-reset-group">
+
       <button
               id="resetFiltersButton"
-              class="outline-button"
+              class="button button-outline"
               type="button"
       >
         Reset
       </button>
+
     </div>
 
   </section>
 
-  <!-- Loading -->
+  <!-- Loading message -->
 
-  <div id="loadingMessage" class="message">
+  <section
+          id="loadingMessage"
+          class="state-message"
+  >
     Loading tasks...
-  </div>
-
-  <!-- Error -->
-
-  <div id="errorMessage" class="message error-message hidden"></div>
-
-  <!-- Empty state -->
-
-  <section id="emptyState" class="empty-state hidden">
-    <h2>No tasks found</h2>
-    <p>Create your first task or change the selected filters.</p>
   </section>
 
-  <!-- Tasks -->
+  <!-- Error message -->
 
-  <section id="taskGrid" class="task-grid"></section>
+  <section
+          id="errorMessage"
+          class="state-message state-error hidden"
+  ></section>
+
+  <!-- Empty result -->
+
+  <section
+          id="emptyState"
+          class="empty-state hidden"
+  >
+    <h2>No tasks found</h2>
+
+    <p>
+      Create a task or change the selected filters.
+    </p>
+  </section>
+
+  <!-- Task cards -->
+
+  <section
+          id="taskGrid"
+          class="task-grid"
+  ></section>
 
 </main>
 
-<!-- Create and edit modal -->
+<!-- Create/Edit modal -->
 
-<div id="taskModal" class="modal hidden">
-
-  <div class="modal-overlay" id="modalOverlay"></div>
+<div
+        id="taskModal"
+        class="modal hidden"
+>
+  <div
+          id="taskModalOverlay"
+          class="modal-overlay"
+  ></div>
 
   <div class="modal-content">
 
     <div class="modal-header">
+
       <div>
-        <h2 id="modalTitle">Create Task</h2>
-        <p>Enter task information below.</p>
+        <h2 id="taskModalTitle">
+          Create Task
+        </h2>
+
+        <p>
+          Enter the task information.
+        </p>
       </div>
 
       <button
-              id="closeModalButton"
+              id="closeTaskModalButton"
               class="close-button"
               type="button"
-              aria-label="Close"
+              aria-label="Close modal"
       >
         ×
       </button>
+
     </div>
 
     <form id="taskForm">
 
-      <input id="taskId" type="hidden">
+      <input
+              id="taskId"
+              type="hidden"
+      >
 
       <div class="form-group">
+
         <label for="taskTitle">
           Title
           <span>*</span>
@@ -177,30 +226,34 @@
 
         <input
                 id="taskTitle"
-                name="title"
                 type="text"
                 placeholder="Enter task title"
                 minlength="2"
                 maxlength="100"
                 required
         >
+
       </div>
 
       <div class="form-group">
-        <label for="taskDescription">Description</label>
+
+        <label for="taskDescription">
+          Description
+        </label>
 
         <textarea
                 id="taskDescription"
-                name="description"
                 rows="5"
-                placeholder="Enter task description"
                 maxlength="500"
+                placeholder="Enter task description"
         ></textarea>
+
       </div>
 
       <div class="form-row">
 
         <div class="form-group">
+
           <label for="taskStatus">
             Status
             <span>*</span>
@@ -208,16 +261,25 @@
 
           <select
                   id="taskStatus"
-                  name="status"
                   required
           >
-            <option value="TODO">Todo</option>
-            <option value="IN_PROGRESS">In progress</option>
-            <option value="DONE">Done</option>
+            <option value="TODO">
+              To do
+            </option>
+
+            <option value="IN_PROGRESS">
+              In progress
+            </option>
+
+            <option value="DONE">
+              Done
+            </option>
           </select>
+
         </div>
 
         <div class="form-group">
+
           <label for="taskPriority">
             Priority
             <span>*</span>
@@ -225,24 +287,38 @@
 
           <select
                   id="taskPriority"
-                  name="priority"
                   required
           >
-            <option value="LOW">Low</option>
-            <option value="MEDIUM" selected>Medium</option>
-            <option value="HIGH">High</option>
+            <option value="LOW">
+              Low
+            </option>
+
+            <option
+                    value="MEDIUM"
+                    selected
+            >
+              Medium
+            </option>
+
+            <option value="HIGH">
+              High
+            </option>
           </select>
+
         </div>
 
       </div>
 
-      <div id="formErrorMessage" class="form-error hidden"></div>
+      <div
+              id="formErrorMessage"
+              class="form-error hidden"
+      ></div>
 
       <div class="modal-actions">
 
         <button
-                id="cancelButton"
-                class="outline-button"
+                id="cancelTaskButton"
+                class="button button-outline"
                 type="button"
         >
           Cancel
@@ -250,10 +326,10 @@
 
         <button
                 id="saveTaskButton"
-                class="primary-button"
+                class="button button-primary"
                 type="submit"
         >
-          Save Task
+          Create Task
         </button>
 
       </div>
@@ -261,18 +337,24 @@
     </form>
 
   </div>
-
 </div>
 
-<!-- Confirmation modal -->
+<!-- Delete confirmation modal -->
 
-<div id="deleteModal" class="modal hidden">
+<div
+        id="deleteModal"
+        class="modal hidden"
+>
+  <div
+          id="deleteModalOverlay"
+          class="modal-overlay"
+  ></div>
 
-  <div class="modal-overlay" id="deleteModalOverlay"></div>
+  <div class="modal-content delete-modal-content">
 
-  <div class="modal-content confirmation-modal">
-
-    <div class="delete-icon">!</div>
+    <div class="delete-modal-icon">
+      !
+    </div>
 
     <h2>Delete task?</h2>
 
@@ -281,10 +363,11 @@
       permanently deleted.
     </p>
 
-    <div class="modal-actions">
+    <div class="modal-actions delete-modal-actions">
+
       <button
               id="cancelDeleteButton"
-              class="outline-button"
+              class="button button-outline"
               type="button"
       >
         Cancel
@@ -292,20 +375,23 @@
 
       <button
               id="confirmDeleteButton"
-              class="danger-button"
+              class="button button-danger"
               type="button"
       >
         Delete
       </button>
+
     </div>
 
   </div>
-
 </div>
 
 <!-- Notification -->
 
-<div id="notification" class="notification hidden"></div>
+<div
+        id="notification"
+        class="notification hidden"
+></div>
 
 <script src="app.js"></script>
 

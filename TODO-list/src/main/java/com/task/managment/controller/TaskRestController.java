@@ -31,12 +31,12 @@ public class TaskRestController {
         return service.getAll();
     }
 
-    @GetMapping("/status/{status}")
+    @GetMapping("/{status}/status")
     public List<TaskDTO> getByStatus(@PathVariable TaskStatus status) {
         return service.getByStatus(status);
     }
 
-    @GetMapping("/priority/{priority}")
+    @GetMapping("/{priority}/priority")
     public List<TaskDTO> getByPriority(@PathVariable Priority priority) {
         return service.getByPriority(priority);
     }
