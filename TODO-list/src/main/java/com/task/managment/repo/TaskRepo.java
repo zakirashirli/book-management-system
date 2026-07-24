@@ -6,6 +6,7 @@ import com.task.managment.model.enums.TaskStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -14,6 +15,8 @@ public interface TaskRepo extends JpaRepository<Task, Long> {
     List<Task> findByStatus(TaskStatus status);
     List<Task> findByPriority(Priority priority);
     List<Task> findByTitleContainingIgnoreCase(String title);
+    List<Task> findByDeadlineBeforeAndStatusNot(LocalDateTime currentTime, TaskStatus status);
+    List<Task> findByDeadlineBeforeAndStatusIn(LocalDateTime currentTime, List<TaskStatus> status);
     Task findTaskById(Long id);
 
 }

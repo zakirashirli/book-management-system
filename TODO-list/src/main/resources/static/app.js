@@ -1,11 +1,5 @@
 const API_BASE_URL = "http://localhost:8081/api/tasks";
 
-/*
-|--------------------------------------------------------------------------
-| HTML elements
-|--------------------------------------------------------------------------
-*/
-
 const taskGrid = document.getElementById("taskGrid");
 const loadingMessage = document.getElementById("loadingMessage");
 const errorMessage = document.getElementById("errorMessage");
@@ -17,6 +11,9 @@ const progressTaskCount = document.getElementById(
     "progressTaskCount"
 );
 const doneTaskCount = document.getElementById("doneTaskCount");
+const overdueTaskCount = document.getElementById(
+    "overdueTaskCount"
+);
 
 const searchInput = document.getElementById("searchInput");
 const searchButton = document.getElementById("searchButton");
@@ -50,6 +47,9 @@ const taskTitleInput = document.getElementById("taskTitle");
 const taskDescriptionInput = document.getElementById(
     "taskDescription"
 );
+const taskDeadlineInput = document.getElementById(
+    "taskDeadline"
+);
 const taskStatusInput = document.getElementById("taskStatus");
 const taskPriorityInput = document.getElementById(
     "taskPriority"
@@ -74,31 +74,24 @@ const confirmDeleteButton = document.getElementById(
 
 const notification = document.getElementById("notification");
 
-/*
-|--------------------------------------------------------------------------
-| Application state
-|--------------------------------------------------------------------------
-*/
-
 let allTasks = [];
 let selectedTaskIdForDelete = null;
 let notificationTimer = null;
+let automaticRefreshTimer = null;
 
-/*
-|--------------------------------------------------------------------------
-| Initial load
-|--------------------------------------------------------------------------
-*/
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadTasks();
 
-document.addEventListener("DOMContentLoaded", () => {
-    loadTasks();
+    automaticRefreshTimer = setInterval(() => {
+        refreshCurrentView();
+    }, 10000);
 });
 
-/*
-|--------------------------------------------------------------------------
-| Event listeners
-|--------------------------------------------------------------------------
-*/
+window.addEventListener("beforeunload", () => {
+    if (automaticRefreshTimer) {
+        clearInterval(automaticRefreshTimer);
+    }
+});
 
 openCreateModalButton.addEventListener(
     "click",
@@ -180,24 +173,17 @@ document.addEventListener("keydown", event => {
     }
 });
 
-/*
-|--------------------------------------------------------------------------
-| GET all tasks
-|--------------------------------------------------------------------------
-|
-| GET /api/tasks
-|
-*/
-
-async function loadTasks() {
-    showLoading();
+async function loadTasks(showLoader = true) {
+    if (showLoader) {
+        showLoading();
+    }
 
     try {
         const response = await fetch(API_BASE_URL);
 
         if (!response.ok) {
             throw new Error(
-                `Failed to load tasks. Status: ${response.status}`
+                `Could not load tasks. Status: ${response.status}`
             );
         }
 
@@ -218,27 +204,20 @@ async function loadTasks() {
     }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Search tasks
-|--------------------------------------------------------------------------
-|
-| GET /api/tasks/search?title=java
-|
-*/
-
-async function searchTasks() {
+async function searchTasks(showLoader = true) {
     const title = searchInput.value.trim();
 
     statusFilter.value = "";
     priorityFilter.value = "";
 
     if (!title) {
-        await loadTasks();
+        await loadTasks(showLoader);
         return;
     }
 
-    showLoading();
+    if (showLoader) {
+        showLoading();
+    }
 
     try {
         const response = await fetch(
@@ -254,6 +233,7 @@ async function searchTasks() {
         const tasks = await response.json();
 
         renderTasks(tasks);
+        await refreshStatistics();
     } catch (error) {
         console.error(error);
 
@@ -263,33 +243,24 @@ async function searchTasks() {
     }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Filter by status
-|--------------------------------------------------------------------------
-|
-| GET /api/tasks/status/TODO
-| GET /api/tasks/status/IN_PROGRESS
-| GET /api/tasks/status/DONE
-|
-*/
-
-async function filterByStatus() {
+async function filterByStatus(showLoader = true) {
     const status = statusFilter.value;
 
-    priorityFilter.value = "";
     searchInput.value = "";
+    priorityFilter.value = "";
 
     if (!status) {
-        await loadTasks();
+        await loadTasks(showLoader);
         return;
     }
 
-    showLoading();
+    if (showLoader) {
+        showLoading();
+    }
 
     try {
         const response = await fetch(
-            `${API_BASE_URL}/${encodeURIComponent(status)}/status`
+            `${API_BASE_URL}/status/${encodeURIComponent(status)}`
         );
 
         if (!response.ok) {
@@ -301,6 +272,7 @@ async function filterByStatus() {
         const tasks = await response.json();
 
         renderTasks(tasks);
+        await refreshStatistics();
     } catch (error) {
         console.error(error);
 
@@ -311,33 +283,24 @@ async function filterByStatus() {
     }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Filter by priority
-|--------------------------------------------------------------------------
-|
-| GET /api/tasks/priority/LOW
-| GET /api/tasks/priority/MEDIUM
-| GET /api/tasks/priority/HIGH
-|
-*/
-
-async function filterByPriority() {
+async function filterByPriority(showLoader = true) {
     const priority = priorityFilter.value;
 
-    statusFilter.value = "";
     searchInput.value = "";
+    statusFilter.value = "";
 
     if (!priority) {
-        await loadTasks();
+        await loadTasks(showLoader);
         return;
     }
 
-    showLoading();
+    if (showLoader) {
+        showLoading();
+    }
 
     try {
         const response = await fetch(
-            `${API_BASE_URL}/${encodeURIComponent(priority)}/priority`
+            `${API_BASE_URL}/priority/${encodeURIComponent(priority)}`
         );
 
         if (!response.ok) {
@@ -349,6 +312,7 @@ async function filterByPriority() {
         const tasks = await response.json();
 
         renderTasks(tasks);
+        await refreshStatistics();
     } catch (error) {
         console.error(error);
 
@@ -359,12 +323,6 @@ async function filterByPriority() {
     }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Reset filters
-|--------------------------------------------------------------------------
-*/
-
 async function resetFilters() {
     searchInput.value = "";
     statusFilter.value = "";
@@ -373,15 +331,51 @@ async function resetFilters() {
     await loadTasks();
 }
 
-/*
-|--------------------------------------------------------------------------
-| Create or update task
-|--------------------------------------------------------------------------
-|
-| POST /api/tasks
-| PUT /api/tasks/{id}
-|
-*/
+async function refreshCurrentView() {
+    if (
+        !taskModal.classList.contains("hidden") ||
+        !deleteModal.classList.contains("hidden")
+    ) {
+        return;
+    }
+
+    if (searchInput.value.trim()) {
+        await searchTasks(false);
+        return;
+    }
+
+    if (statusFilter.value) {
+        await filterByStatus(false);
+        return;
+    }
+
+    if (priorityFilter.value) {
+        await filterByPriority(false);
+        return;
+    }
+
+    await loadTasks(false);
+}
+
+async function refreshStatistics() {
+    try {
+        const response = await fetch(API_BASE_URL);
+
+        if (!response.ok) {
+            return;
+        }
+
+        const tasks = await response.json();
+
+        allTasks = Array.isArray(tasks)
+            ? tasks
+            : [];
+
+        updateStatistics(allTasks);
+    } catch (error) {
+        console.error("Statistics refresh failed:", error);
+    }
+}
 
 async function handleTaskSubmit(event) {
     event.preventDefault();
@@ -389,9 +383,9 @@ async function handleTaskSubmit(event) {
     hideFormError();
 
     const id = taskIdInput.value.trim();
-
     const title = taskTitleInput.value.trim();
     const description = taskDescriptionInput.value.trim();
+    const deadlineValue = taskDeadlineInput.value;
     const status = taskStatusInput.value;
     const priority = taskPriorityInput.value;
 
@@ -400,9 +394,22 @@ async function handleTaskSubmit(event) {
         return;
     }
 
+    if (!deadlineValue) {
+        showFormError("Task deadline is required.");
+        return;
+    }
+
+    const deadlineDate = new Date(deadlineValue);
+
+    if (Number.isNaN(deadlineDate.getTime())) {
+        showFormError("Deadline is invalid.");
+        return;
+    }
+
     const requestBody = {
         title,
         description,
+        deadline: deadlineDate.toISOString(),
         status,
         priority
     };
@@ -432,7 +439,6 @@ async function handleTaskSubmit(event) {
 
         if (!response.ok) {
             const message = await getErrorMessage(response);
-
             throw new Error(message);
         }
 
@@ -457,15 +463,6 @@ async function handleTaskSubmit(event) {
     }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Delete task
-|--------------------------------------------------------------------------
-|
-| DELETE /api/tasks/{id}
-|
-*/
-
 async function deleteSelectedTask() {
     if (!selectedTaskIdForDelete) {
         return;
@@ -484,7 +481,6 @@ async function deleteSelectedTask() {
 
         if (!response.ok) {
             const message = await getErrorMessage(response);
-
             throw new Error(message);
         }
 
@@ -508,17 +504,6 @@ async function deleteSelectedTask() {
         confirmDeleteButton.textContent = "Delete";
     }
 }
-
-/*
-|--------------------------------------------------------------------------
-| Change task status
-|--------------------------------------------------------------------------
-|
-| PATCH /api/tasks/{id}/start
-| PATCH /api/tasks/{id}/complete
-| PATCH /api/tasks/{id}/cancel
-|
-*/
 
 async function changeTaskStatus(
     taskId,
@@ -549,14 +534,10 @@ async function changeTaskStatus(
         return;
     }
 
-    const originalButtonText = clickedButton
-        ? clickedButton.textContent
-        : "";
+    const originalButtonText = clickedButton.textContent;
 
-    if (clickedButton) {
-        clickedButton.disabled = true;
-        clickedButton.textContent = "Processing...";
-    }
+    clickedButton.disabled = true;
+    clickedButton.textContent = "Processing...";
 
     try {
         const response = await fetch(
@@ -568,7 +549,6 @@ async function changeTaskStatus(
 
         if (!response.ok) {
             const message = await getErrorMessage(response);
-
             throw new Error(message);
         }
 
@@ -583,28 +563,20 @@ async function changeTaskStatus(
             "success"
         );
 
-        await loadTasks();
+        await refreshCurrentView();
     } catch (error) {
         console.error(error);
 
         showNotification(
             error.message ||
-            "Could not change the task status.",
+            "Could not change task status.",
             "error"
         );
     } finally {
-        if (clickedButton) {
-            clickedButton.disabled = false;
-            clickedButton.textContent = originalButtonText;
-        }
+        clickedButton.disabled = false;
+        clickedButton.textContent = originalButtonText;
     }
 }
-
-/*
-|--------------------------------------------------------------------------
-| Render tasks
-|--------------------------------------------------------------------------
-*/
 
 function renderTasks(tasks) {
     hideLoading();
@@ -620,22 +592,20 @@ function renderTasks(tasks) {
     emptyState.classList.add("hidden");
 
     tasks.forEach(task => {
-        const taskCard = createTaskCard(task);
-
-        taskGrid.appendChild(taskCard);
+        taskGrid.appendChild(
+            createTaskCard(task)
+        );
     });
 }
-
-/*
-|--------------------------------------------------------------------------
-| Create a task card
-|--------------------------------------------------------------------------
-*/
 
 function createTaskCard(task) {
     const article = document.createElement("article");
 
     article.className = "task-card";
+
+    if (task.status === "OVERDUE") {
+        article.classList.add("overdue-card");
+    }
 
     const title = escapeHtml(
         task.title || "Untitled task"
@@ -647,6 +617,11 @@ function createTaskCard(task) {
 
     const status = task.status || "TODO";
     const priority = task.priority || "MEDIUM";
+    const deadline = formatDeadline(task.deadline);
+
+    const deadlineClass = status === "OVERDUE"
+        ? "deadline-overdue"
+        : "";
 
     article.innerHTML = `
         <div class="task-card-header">
@@ -664,6 +639,11 @@ function createTaskCard(task) {
         <p class="task-description">
             ${description}
         </p>
+
+        <div class="task-deadline ${deadlineClass}">
+            <span>Deadline</span>
+            <strong>${deadline}</strong>
+        </div>
 
         <div class="task-information">
 
@@ -757,19 +737,9 @@ function createTaskCard(task) {
     return article;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Create status buttons based on current status
-|--------------------------------------------------------------------------
-*/
-
 function createStatusButtons(task) {
     if (!task.id) {
-        return `
-            <p class="missing-id-message">
-                Task ID is missing.
-            </p>
-        `;
+        return "";
     }
 
     if (task.status === "TODO") {
@@ -796,7 +766,7 @@ function createStatusButtons(task) {
                     class="status-action-button cancel-status-button"
                     type="button"
             >
-                Cancel
+                Return to TODO
             </button>
         `;
     }
@@ -812,14 +782,16 @@ function createStatusButtons(task) {
         `;
     }
 
+    if (task.status === "OVERDUE") {
+        return `
+            <div class="overdue-warning">
+                Deadline has passed
+            </div>
+        `;
+    }
+
     return "";
 }
-
-/*
-|--------------------------------------------------------------------------
-| Create modal
-|--------------------------------------------------------------------------
-*/
 
 function openCreateModal() {
     taskForm.reset();
@@ -827,6 +799,7 @@ function openCreateModal() {
     taskIdInput.value = "";
     taskStatusInput.value = "TODO";
     taskPriorityInput.value = "MEDIUM";
+    taskDeadlineInput.value = getDefaultDeadlineValue();
 
     taskModalTitle.textContent = "Create Task";
     saveTaskButton.textContent = "Create Task";
@@ -839,16 +812,10 @@ function openCreateModal() {
     taskTitleInput.focus();
 }
 
-/*
-|--------------------------------------------------------------------------
-| Edit modal
-|--------------------------------------------------------------------------
-*/
-
 function openEditModal(task) {
     if (!task.id) {
         showNotification(
-            "Task ID is missing. Add id to TaskDTO and mapper.",
+            "Task ID is missing in TaskDTO.",
             "error"
         );
 
@@ -858,7 +825,14 @@ function openEditModal(task) {
     taskIdInput.value = task.id;
     taskTitleInput.value = task.title || "";
     taskDescriptionInput.value = task.description || "";
-    taskStatusInput.value = task.status || "TODO";
+    taskDeadlineInput.value = toDateTimeLocalValue(
+        task.deadline
+    );
+
+    taskStatusInput.value = normalizeEditableStatus(
+        task.status
+    );
+
     taskPriorityInput.value = task.priority || "MEDIUM";
 
     taskModalTitle.textContent = "Edit Task";
@@ -872,6 +846,14 @@ function openEditModal(task) {
     taskTitleInput.focus();
 }
 
+function normalizeEditableStatus(status) {
+    if (status === "OVERDUE") {
+        return "TODO";
+    }
+
+    return status || "TODO";
+}
+
 function closeTaskModal() {
     taskModal.classList.add("hidden");
 
@@ -883,16 +865,10 @@ function closeTaskModal() {
     document.body.style.overflow = "";
 }
 
-/*
-|--------------------------------------------------------------------------
-| Delete modal
-|--------------------------------------------------------------------------
-*/
-
 function openDeleteModal(taskId) {
     if (!taskId) {
         showNotification(
-            "Task ID is missing. Add id to TaskDTO and mapper.",
+            "Task ID is missing in TaskDTO.",
             "error"
         );
 
@@ -912,44 +888,32 @@ function closeDeleteModal() {
     document.body.style.overflow = "";
 }
 
-/*
-|--------------------------------------------------------------------------
-| Statistics
-|--------------------------------------------------------------------------
-*/
-
 function updateStatistics(tasks) {
-    const total = tasks.length;
+    totalTaskCount.textContent = tasks.length;
 
-    const todo = tasks.filter(
+    todoTaskCount.textContent = tasks.filter(
         task => task.status === "TODO"
     ).length;
 
-    const inProgress = tasks.filter(
+    progressTaskCount.textContent = tasks.filter(
         task => task.status === "IN_PROGRESS"
     ).length;
 
-    const done = tasks.filter(
+    doneTaskCount.textContent = tasks.filter(
         task => task.status === "DONE"
     ).length;
 
-    totalTaskCount.textContent = total;
-    todoTaskCount.textContent = todo;
-    progressTaskCount.textContent = inProgress;
-    doneTaskCount.textContent = done;
+    overdueTaskCount.textContent = tasks.filter(
+        task => task.status === "OVERDUE"
+    ).length;
 }
-
-/*
-|--------------------------------------------------------------------------
-| CSS class helpers
-|--------------------------------------------------------------------------
-*/
 
 function getStatusClass(status) {
     const classes = {
         TODO: "status-todo",
         IN_PROGRESS: "status-in-progress",
-        DONE: "status-done"
+        DONE: "status-done",
+        OVERDUE: "status-overdue"
     };
 
     return classes[status] || "status-todo";
@@ -965,15 +929,6 @@ function getPriorityClass(priority) {
     return classes[priority] || "priority-medium";
 }
 
-/*
-|--------------------------------------------------------------------------
-| Format enum
-|--------------------------------------------------------------------------
-|
-| IN_PROGRESS -> In Progress
-|
-*/
-
 function formatEnumValue(value) {
     if (!value) {
         return "";
@@ -988,11 +943,66 @@ function formatEnumValue(value) {
         );
 }
 
-/*
-|--------------------------------------------------------------------------
-| Loading and error states
-|--------------------------------------------------------------------------
-*/
+function formatDeadline(deadline) {
+    if (!deadline) {
+        return "No deadline";
+    }
+
+    const date = new Date(deadline);
+
+    if (Number.isNaN(date.getTime())) {
+        return "Invalid deadline";
+    }
+
+    return date.toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+function toDateTimeLocalValue(deadline) {
+    if (!deadline) {
+        return "";
+    }
+
+    const date = new Date(deadline);
+
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+
+    const year = date.getFullYear();
+    const month = String(
+        date.getMonth() + 1
+    ).padStart(2, "0");
+
+    const day = String(
+        date.getDate()
+    ).padStart(2, "0");
+
+    const hours = String(
+        date.getHours()
+    ).padStart(2, "0");
+
+    const minutes = String(
+        date.getMinutes()
+    ).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+function getDefaultDeadlineValue() {
+    const date = new Date();
+
+    date.setDate(date.getDate() + 1);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+
+    return toDateTimeLocalValue(date.toISOString());
+}
 
 function showLoading() {
     taskGrid.innerHTML = "";
@@ -1021,12 +1031,6 @@ function hidePageError() {
     errorMessage.classList.add("hidden");
 }
 
-/*
-|--------------------------------------------------------------------------
-| Form errors
-|--------------------------------------------------------------------------
-*/
-
 function showFormError(message) {
     formErrorMessage.textContent = message;
     formErrorMessage.classList.remove("hidden");
@@ -1036,12 +1040,6 @@ function hideFormError() {
     formErrorMessage.textContent = "";
     formErrorMessage.classList.add("hidden");
 }
-
-/*
-|--------------------------------------------------------------------------
-| Save button loading state
-|--------------------------------------------------------------------------
-*/
 
 function setSaveButtonLoading(loading) {
     saveTaskButton.disabled = loading;
@@ -1055,12 +1053,6 @@ function setSaveButtonLoading(loading) {
         ? "Update Task"
         : "Create Task";
 }
-
-/*
-|--------------------------------------------------------------------------
-| Notification
-|--------------------------------------------------------------------------
-*/
 
 function showNotification(
     message,
@@ -1077,12 +1069,6 @@ function showNotification(
         notification.classList.add("hidden");
     }, 3500);
 }
-
-/*
-|--------------------------------------------------------------------------
-| Read backend error
-|--------------------------------------------------------------------------
-*/
 
 async function getErrorMessage(response) {
     try {
@@ -1117,12 +1103,6 @@ async function getErrorMessage(response) {
         return `Request failed with status ${response.status}.`;
     }
 }
-
-/*
-|--------------------------------------------------------------------------
-| Protect HTML output
-|--------------------------------------------------------------------------
-*/
 
 function escapeHtml(value) {
     return String(value)

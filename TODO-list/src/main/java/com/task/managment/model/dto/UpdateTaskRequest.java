@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 public class UpdateTaskRequest {
@@ -18,6 +20,8 @@ public class UpdateTaskRequest {
 
     @Size(min = 3, max = 300, message = "3-300!")
     private String description;
+
+    private LocalDateTime deadline;
 
     @NotNull(message = "Status is required!")
     private TaskStatus status;

@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 public class CreateTaskRequest {
@@ -17,6 +19,8 @@ public class CreateTaskRequest {
 
     @Size(min = 3, max = 300, message = "3-300!")
     private String description;
+
+    private LocalDateTime deadline;
 
     private TaskStatus status;
     private Priority priority;

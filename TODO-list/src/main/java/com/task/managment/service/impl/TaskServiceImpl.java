@@ -27,6 +27,7 @@ public class TaskServiceImpl implements TaskService {
 
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
+        task.setDeadline(request.getDeadline());
         task.setStatus(request.getStatus());
         task.setPriority(request.getPriority());
 
@@ -43,6 +44,7 @@ public class TaskServiceImpl implements TaskService {
 
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
+        task.setDeadline(request.getDeadline());
         task.setStatus(request.getStatus());
         task.setPriority(request.getPriority());
 
@@ -148,6 +150,7 @@ public class TaskServiceImpl implements TaskService {
         dto.setId(task.getId());
         dto.setTitle(task.getTitle());
         dto.setDescription(task.getDescription());
+        dto.setDeadline(task.getDeadline());
         dto.setStatus(task.getStatus());
         dto.setPriority(task.getPriority());
 

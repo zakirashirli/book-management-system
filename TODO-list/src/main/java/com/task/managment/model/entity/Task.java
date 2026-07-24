@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 
 @Entity
 @Getter
@@ -22,6 +24,7 @@ public class Task {
     private Long id;
     private String title;
     private String description;
+    private LocalDateTime deadline;
 
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
