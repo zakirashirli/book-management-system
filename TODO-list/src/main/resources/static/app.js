@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:8081/api/tasks";
+const API_BASE_URL = "http://localhost:8080/api/tasks";
 
 const taskGrid = document.getElementById("taskGrid");
 const loadingMessage = document.getElementById("loadingMessage");

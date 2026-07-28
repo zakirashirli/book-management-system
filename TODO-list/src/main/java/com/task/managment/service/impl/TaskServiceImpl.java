@@ -10,6 +10,8 @@ import com.task.managment.model.enums.TaskStatus;
 import com.task.managment.repo.TaskRepo;
 import com.task.managment.service.interfaces.TaskService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +22,7 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepo repo;
 
+    @CacheEvict(value = "tasks", allEntries = true)
     @Override
     public TaskDTO create(CreateTaskRequest request) {
 
@@ -36,6 +39,7 @@ public class TaskServiceImpl implements TaskService {
         return mapToDTo(savedTask);
     }
 
+    @CacheEvict(value = "tasks", allEntries = true)
     @Override
     public TaskDTO update(Long id, UpdateTaskRequest request) {
 
@@ -58,6 +62,7 @@ public class TaskServiceImpl implements TaskService {
         return null;
     }
 
+    @CacheEvict(value = "tasks", allEntries = true)
     @Override
     public TaskDTO start(Long id) {
         Task task = repo.findTaskById(id);
@@ -73,6 +78,7 @@ public class TaskServiceImpl implements TaskService {
         return mapToDTo(updatedTask);
     }
 
+    @CacheEvict(value = "tasks", allEntries = true)
     @Override
     public TaskDTO complete(Long id) {
         Task task = repo.findTaskById(id);
@@ -88,6 +94,7 @@ public class TaskServiceImpl implements TaskService {
         return mapToDTo(updatedTask);
     }
 
+    @CacheEvict(value = "tasks", allEntries = true)
     @Override
     public TaskDTO cancel(Long id) {
         Task task = repo.findTaskById(id);
@@ -99,8 +106,12 @@ public class TaskServiceImpl implements TaskService {
         return mapToDTo(updatedTask);
     }
 
+    @Cacheable(value = "tasks")
     @Override
     public List<TaskDTO> getAll() {
+
+        System.out.println("Getting From DB");
+
         return repo
                 .findAll()
                 .stream()
@@ -135,6 +146,7 @@ public class TaskServiceImpl implements TaskService {
                 .toList();
     }
 
+    @CacheEvict(value = "tasks", allEntries = true)
     @Override
     public void delete(Long id) {
         Task task = repo.findById(id)
