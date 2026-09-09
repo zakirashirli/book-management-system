@@ -45,10 +45,12 @@ async function registerUser() {
     const username = document.getElementById("registerUsername").value;
     const email = document.getElementById("email").value;
     const password = document.getElementById("registerPassword").value;
+    const role = document.getElementById("registerRole").value;
     const requestBody = {
         username: username,
         email: email,
-        password: password
+        password: password,
+        role: role
     };
 
     try{
@@ -117,7 +119,13 @@ async function login() {
         });
 
         if (!response.ok) {
-            showMessage("loginMessage", "Login Failed", false);
+            const error = await response.json().catch(() => ({}));
+
+            showMessage(
+                "loginMessage",
+                error.message || error.detail || `Ошибка входа: ${response.status}`,
+                false
+            );
             return;
         }
 

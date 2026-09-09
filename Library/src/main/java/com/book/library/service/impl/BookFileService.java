@@ -4,7 +4,8 @@ import com.book.library.entity.Book;
 import com.book.library.entity.User;
 import com.book.library.entity.enums.Role;
 import com.book.library.exception.BookNotFoundException;
-import com.book.library.exception.ResponseStatusException;
+//import com.book.library.exception.ResponseStatusException;
+import org.springframework.web.server.ResponseStatusException;
 import com.book.library.exception.UserNotFoundException;
 import com.book.library.repository.BookRepository;
 import com.book.library.repository.UserRepository;
@@ -89,7 +90,7 @@ public class BookFileService {
 
         try (InputStream input = file.getInputStream()) {
             byte[] signature = input.readNBytes(5);
-            byte[] expected = "%PDF".getBytes(StandardCharsets.US_ASCII); // asdfasdf/145234654.pdf
+            byte[] expected = "%PDF-".getBytes(StandardCharsets.US_ASCII); // asdfasdf/145234654.pdf
 
             if (!Arrays.equals(signature,expected)) {
                 throw new ResponseStatusException(
