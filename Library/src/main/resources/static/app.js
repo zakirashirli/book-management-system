@@ -474,6 +474,105 @@ async function deleteBook() {
 
 }
 
+
+function setupBookFileForm() {
+    const form = document.getElementById("bookFileForm");
+    if (!form) return;
+
+    const idInput = document.getElementById("uploadBookId");
+    const fileInput = document.getElementById("bookPdf");
+    const message = document.getElementById("bookFileMessage");
+    const downloadButton = document.getElementById("downloadBookPdf");
+
+    function authorizationHeaders() {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            throw new Error("Сначала войдите в аккаунт");
+        }
+
+        return { Authorization: `Bearer ${token}` };
+    }
+
+    async function checkResponse(response) {
+        if (response.ok) return;
+
+        const error = await response.json().catch(() => ({}));
+
+        throw new Error(
+            error.message || error.detail ||
+            `Ошибка запроса: ${response.status}`
+        );
+    }
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        try {
+            const file = fileInput.files[0];
+
+            if (!file) {
+                throw new Error("Выберите PDF-файл");
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                throw new Error("Максимальный размер — 10 МБ");
+            }
+
+            const data = new FormData();
+            data.append("file", file);
+
+            const response = await fetch(
+                `/api/books/${encodeURIComponent(idInput.value)}/file`,
+                {
+                    method: "POST",
+                    headers: authorizationHeaders(),
+                    body: data
+                }
+            );
+
+            await checkResponse(response);
+            message.textContent = "Файл успешно загружен";
+        } catch (error) {
+            message.textContent = error.message;
+        }
+    });
+
+    downloadButton.addEventListener("click", async () => {
+        if (!idInput.reportValidity()) return;
+
+        try {
+            const response = await fetch(
+                `/api/books/${encodeURIComponent(idInput.value)}/file`,
+                { headers: authorizationHeaders() }
+            );
+
+            await checkResponse(response);
+
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+
+            link.href = url;
+            link.download = `book-${idInput.value}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            message.textContent = "Файл скачан";
+        } catch (error) {
+            message.textContent = error.message;
+        }
+    });
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupBookFileForm);
+} else {
+    setupBookFileForm();
+}
+
 function renderBooks(books, elementId) {
     const booksDiv = document.getElementById(elementId);
     booksDiv.innerHTML = "";

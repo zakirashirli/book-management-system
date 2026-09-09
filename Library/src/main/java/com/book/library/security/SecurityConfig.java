@@ -62,6 +62,7 @@ public class SecurityConfig {
                                 "/index.html",
                                 "/login.html",
                                 "/register.html",
+                                "/verify.html",
                                 "/forgot-password.html",
                                 "/reset-password.html",
                                 "/profile.html",
