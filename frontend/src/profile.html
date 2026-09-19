@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="view-transition" content="same-origin">
+  <title>BookSys — Management</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+</head>
+<body>
+
+  <div style="max-width: 960px; margin: 0 auto 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h1 style="text-align: left; margin: 0;">Dashboard</h1>
+      <p style="color: #6b7280; font-size: 0.9rem;">Catalog & Library Operations</p>
+    </div>
+    <button class="small-btn error" style="background:#fee2e2; color:#991b1b;" onclick="logoutUser()">
+      <i class="ti ti-logout"></i> Logout
+    </button>
+  </div>
+
+  <p id="logoutMessage" class="message"></p>
+
+  <div class="container">
+    <!-- Filter & Read -->
+    <div class="card full-width">
+      <div class="card-header">
+        <div class="card-icon blue"><i class="ti ti-search"></i></div>
+        <h2>Search & Catalog</h2>
+      </div>
+
+      <div class="controls">
+        <input type="number" id="page" value="0" placeholder="Page" style="width: 70px;">
+        <input type="number" id="size" value="10" placeholder="Size" style="width: 70px;">
+        <select id="sortBy">
+          <option value="id">ID</option>
+          <option value="title">Title</option>
+          <option value="price">Price</option>
+        </select>
+        <select id="direction">
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
+        <button class="small-btn blue" onclick="getBooks()"><i class="ti ti-refresh"></i> Load Books</button>
+      </div>
+
+      <div id="books"></div>
+    </div>
+
+    <!-- Create Book -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon teal"><i class="ti ti-plus"></i></div>
+        <h2>Add Book</h2>
+      </div>
+
+      <div class="field">
+        <label>Title</label>
+        <input type="text" id="createTitle" placeholder="The Great Gatsby">
+      </div>
+      <div class="field">
+        <label>Author</label>
+        <input type="text" id="createAuthor" placeholder="F. Scott Fitzgerald">
+      </div>
+      <div class="field">
+        <label>Price</label>
+        <input type="number" step="0.01" id="createPrice" placeholder="19.99">
+      </div>
+      <div class="field">
+        <label>Amount</label>
+        <input type="number" id="createAmount" placeholder="10">
+      </div>
+
+      <button class="teal" onclick="createBook()"><i class="ti ti-check"></i> Add to Library</button>
+      <p id="createMessage" class="message"></p>
+    </div>
+
+    <!-- Upload/Download PDF -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon amber"><i class="ti ti-file-text"></i></div>
+        <h2>Book File (PDF)</h2>
+      </div>
+
+      <form id="bookFileForm">
+        <div class="field">
+          <label>Book ID</label>
+          <input type="number" id="uploadBookId" placeholder="1" required>
+        </div>
+        <div class="field">
+          <label>Select PDF</label>
+          <input type="file" id="bookPdf" accept=".pdf">
+        </div>
+        <button type="submit" class="amber"><i class="ti ti-upload"></i> Upload PDF</button>
+      </form>
+
+      <button type="button" class="small-btn" id="downloadBookPdf" style="margin-top: 8px; width: 100%; background: #e5e7eb; color: #1f2937;">
+        <i class="ti ti-download"></i> Download PDF
+      </button>
+
+      <p id="bookFileMessage" class="message"></p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

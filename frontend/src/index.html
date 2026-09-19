@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="view-transition" content="same-origin">
+  <title>BookSys — Home & Library Catalog</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <span class="nav-logo-badge"><i class="ti ti-books"></i></span>
+        BookSys
+      </a>
+
+      <!-- Dynamic navigation state based on auth status -->
+      <nav id="navAuthLinks" class="nav-actions">
+        <!-- Injected via JavaScript based on login token -->
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <span class="hero-tag"><i class="ti ti-sparkles"></i> Digital Library Catalog</span>
+      <h1>Discover, Manage, and Track Your Books.</h1>
+      <p class="hero-desc">
+        Access your collection anywhere, download attached reading files, and keep inventory organized in one minimalist dashboard.
+      </p>
+      
+      <div class="hero-cta-group">
+        <a href="#catalog" class="cta-primary-btn">
+          <i class="ti ti-book-2"></i> Browse Books
+        </a>
+        <a href="profile.html" class="cta-secondary-btn" id="heroManageBtn">
+          <i class="ti ti-layout-dashboard"></i> Dashboard
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Features / Metric Highlights -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon purple"><i class="ti ti-book"></i></div>
+        <div>
+          <h4>Full Inventory</h4>
+          <p>Instant sorting & search</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon teal"><i class="ti ti-file-text"></i></div>
+        <div>
+          <h4>PDF Access</h4>
+          <p>Read & download books</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon blue"><i class="ti ti-shield-lock"></i></div>
+        <div>
+          <h4>Secured Storage</h4>
+          <p>Role-based access control</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Catalog Section -->
+  <main class="container second-container" id="catalog">
+    <div class="card full-width">
+      <div class="card-header" style="justify-content: space-between; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div class="card-icon teal">
+            <i class="ti ti-books"></i>
+          </div>
+          <div>
+            <h2>Explore Catalog</h2>
+            <p style="font-size: 12px; color: #6b7280; margin: 0;">Showing books available across your shelves</p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button class="small-btn teal" onclick="toggleFilterBar()">
+            <i class="ti ti-filter"></i> Filters
+          </button>
+          <button class="small-btn blue" onclick="getBooks()">
+            <i class="ti ti-refresh"></i> Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Bar -->
+      <div id="filterBar" class="controls" style="display: none; background: #f9fafb; padding: 12px; border-radius: 10px; border: 1px dashed #e5e7eb; margin-bottom: 1.25rem;">
+        <input type="text" id="filterTitle" placeholder="Filter by Title..." style="flex: 1 1 150px;">
+        <input type="text" id="filterAuthor" placeholder="Filter by Author..." style="flex: 1 1 150px;">
+        <input type="number" id="filterMinPrice" placeholder="Min $" step="0.01" style="width: 90px;">
+        <input type="number" id="filterMaxPrice" placeholder="Max $" step="0.01" style="width: 90px;">
+        <button class="small-btn teal" onclick="filterBooks()">
+          <i class="ti ti-search"></i> Apply
+        </button>
+      </div>
+
+      <!-- Sorting and Paging Controls -->
+      <div class="controls" style="border-bottom: 1px solid #f3f4f6; padding-bottom: 1rem;">
+        <span style="font-size: 12px; color: #6b7280; font-weight: 600; text-transform: uppercase;">View Options:</span>
+        <input type="number" id="page" value="0" min="0" placeholder="Page" style="width: 75px;" title="Page Number">
+        <input type="number" id="size" value="12" min="1" placeholder="Size" style="width: 75px;" title="Page Size">
+        
+        <select id="sortBy" title="Sort Column">
+          <option value="id">Sort by ID</option>
+          <option value="title">Sort by Title</option>
+          <option value="price">Sort by Price</option>
+        </select>
+
+        <select id="direction" title="Direction">
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
+      </div>
+
+      <!-- Books Grid Target Container -->
+      <div id="books">
+        <p style="color:#9ca3af; text-align:center; padding: 2.5rem 0;">Loading catalog...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <p>© 2026 BookSys. Built for unified library and inventory tracking.</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    function toggleFilterBar() {
+      const bar = document.getElementById('filterBar');
+      bar.style.display = bar.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    // Dynamic Navigation state
+    function updateNavState() {
+      const navContainer = document.getElementById('navAuthLinks');
+      const token = typeof getToken === 'function' ? getToken() : localStorage.getItem('token');
+
+      if (token) {
+        navContainer.innerHTML = `
+          <a href="profile.html" class="nav-btn-link"><i class="ti ti-layout-dashboard"></i> Dashboard</a>
+          <button class="small-btn error" style="background:#fee2e2; color:#991b1b; padding: 6px 14px;" onclick="logoutUser()">
+            <i class="ti ti-logout"></i> Logout
+          </button>
+        `;
+      } else {
+        navContainer.innerHTML = `
+          <a href="login.html" class="nav-btn-link"><i class="ti ti-login"></i> Sign In</a>
+          <button class="small-btn blue" onclick="navigate('register.html')" style="padding: 6px 14px;">
+            <i class="ti ti-user-plus"></i> Join
+          </button>
+        `;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      updateNavState();
+      if (typeof getBooks === "function") {
+        getBooks();
+      }
+    });
+  </script>
+</body>
+</html>

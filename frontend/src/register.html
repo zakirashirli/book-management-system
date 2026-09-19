@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="view-transition" content="same-origin">
+  <title>BookSys — Register</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+</head>
+<body>
+
+  <h1>BookSys</h1>
+  <p class="site-subtitle">Create a new account</p>
+
+  <div class="container" style="max-width: 420px;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon blue">
+          <i class="ti ti-user-plus"></i>
+        </div>
+        <h2>Create Account</h2>
+      </div>
+
+      <div class="field">
+        <label for="registerUsername">Username</label>
+        <input type="text" id="registerUsername" placeholder="johndoe" required>
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="name@example.com" required>
+      </div>
+
+      <div class="field">
+        <label for="registerPassword">Password</label>
+        <input type="password" id="registerPassword" placeholder="••••••••" required>
+      </div>
+
+      <div class="field">
+        <label for="registerRole">Role</label>
+        <select id="registerRole">
+          <option value="USER">User</option>
+          <option value="ADMIN">Admin</option>
+        </select>
+      </div>
+
+      <button class="blue" onclick="registerUser()">
+        <i class="ti ti-arrow-right"></i>
+        Sign Up
+      </button>
+
+      <p id="registerMessage" class="message"></p>
+
+      <div style="text-align: center; margin-top: 1rem; font-size: 13px;">
+        <a href="login.html" style="color: #6b7280; text-decoration: none;">Already have an account? Sign In</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="view-transition" content="same-origin">
+  <title>BookSys — Verify Account</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+</head>
+<body>
+
+  <h1>BookSys</h1>
+  <p class="site-subtitle">Enter OTP sent to your email</p>
+
+  <div class="container" style="max-width: 420px;">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon teal">
+          <i class="ti ti-mail-check"></i>
+        </div>
+        <h2>Verify Email</h2>
+      </div>
+
+      <div class="field">
+        <label for="verifyEmail">Email</label>
+        <input type="email" id="verifyEmail" placeholder="name@example.com" required>
+      </div>
+
+      <div class="field">
+        <label for="verifyCode">OTP Code</label>
+        <input type="text" id="verifyCode" placeholder="123456" required>
+      </div>
+
+      <button class="teal" onclick="verifyOtp()">
+        <i class="ti ti-check"></i>
+        Confirm OTP
+      </button>
+
+      <p id="verifyMessage" class="message"></p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
