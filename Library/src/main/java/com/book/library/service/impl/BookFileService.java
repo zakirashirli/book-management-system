@@ -96,6 +96,7 @@ public class BookFileService {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
                         "Only PDFs!"
+
                 );
             }
         }
