@@ -23,6 +23,7 @@ import java.util.UUID;
 public class AuthServiceImpl implements AuthService {
 
     private static final long REFRESH_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 1000L;
+    
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
