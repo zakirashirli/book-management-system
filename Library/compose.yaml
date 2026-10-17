@@ -20,7 +20,7 @@ services:
     networks:
       - library-net
   app:
-    image: deaprojects/library-app:1.0
+    image: deaprojects/library-app:1.1
     container_name: library-app-container
     restart: unless-stopped
     ports:
